@@ -1,0 +1,601 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5326E6142F84FC41008B01C0 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 5326E6132F84FC36008B01C0 /* .gitignore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5326E5CD2F84E3F0008B01C0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5326E5B72F84E3EF008B01C0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5326E5BE2F84E3EF008B01C0;
+			remoteInfo = BlendBetter;
+		};
+		5326E5D72F84E3F0008B01C0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5326E5B72F84E3EF008B01C0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5326E5BE2F84E3EF008B01C0;
+			remoteInfo = BlendBetter;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		5326E5BF2F84E3EF008B01C0 /* BlendBetter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlendBetter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		5326E5CC2F84E3F0008B01C0 /* BlendBetterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlendBetterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5326E5D62F84E3F0008B01C0 /* BlendBetterUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BlendBetterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5326E6132F84FC36008B01C0 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5326E6102F84EEFA008B01C0 /* Exceptions for "BlendBetter" folder in "BlendBetter" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5326E5BE2F84E3EF008B01C0 /* BlendBetter */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		5326E5C12F84E3EF008B01C0 /* BlendBetter */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5326E6102F84EEFA008B01C0 /* Exceptions for "BlendBetter" folder in "BlendBetter" target */,
+			);
+			path = BlendBetter;
+			sourceTree = "<group>";
+		};
+		5326E5CF2F84E3F0008B01C0 /* BlendBetterTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BlendBetterTests;
+			sourceTree = "<group>";
+		};
+		5326E5D92F84E3F0008B01C0 /* BlendBetterUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = BlendBetterUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5326E5BC2F84E3EF008B01C0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5326E5C92F84E3F0008B01C0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5326E5D32F84E3F0008B01C0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5326E5B62F84E3EF008B01C0 = {
+			isa = PBXGroup;
+			children = (
+				5326E6132F84FC36008B01C0 /* .gitignore */,
+				5326E5C12F84E3EF008B01C0 /* BlendBetter */,
+				5326E5CF2F84E3F0008B01C0 /* BlendBetterTests */,
+				5326E5D92F84E3F0008B01C0 /* BlendBetterUITests */,
+				5326E5C02F84E3EF008B01C0 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5326E5C02F84E3EF008B01C0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5326E5BF2F84E3EF008B01C0 /* BlendBetter.app */,
+				5326E5CC2F84E3F0008B01C0 /* BlendBetterTests.xctest */,
+				5326E5D62F84E3F0008B01C0 /* BlendBetterUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5326E5BE2F84E3EF008B01C0 /* BlendBetter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5326E5E02F84E3F0008B01C0 /* Build configuration list for PBXNativeTarget "BlendBetter" */;
+			buildPhases = (
+				5326E5BB2F84E3EF008B01C0 /* Sources */,
+				5326E5BC2F84E3EF008B01C0 /* Frameworks */,
+				5326E5BD2F84E3EF008B01C0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				5326E5C12F84E3EF008B01C0 /* BlendBetter */,
+			);
+			name = BlendBetter;
+			packageProductDependencies = (
+			);
+			productName = BlendBetter;
+			productReference = 5326E5BF2F84E3EF008B01C0 /* BlendBetter.app */;
+			productType = "com.apple.product-type.application";
+		};
+		5326E5CB2F84E3F0008B01C0 /* BlendBetterTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5326E5E32F84E3F0008B01C0 /* Build configuration list for PBXNativeTarget "BlendBetterTests" */;
+			buildPhases = (
+				5326E5C82F84E3F0008B01C0 /* Sources */,
+				5326E5C92F84E3F0008B01C0 /* Frameworks */,
+				5326E5CA2F84E3F0008B01C0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5326E5CE2F84E3F0008B01C0 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5326E5CF2F84E3F0008B01C0 /* BlendBetterTests */,
+			);
+			name = BlendBetterTests;
+			packageProductDependencies = (
+			);
+			productName = BlendBetterTests;
+			productReference = 5326E5CC2F84E3F0008B01C0 /* BlendBetterTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		5326E5D52F84E3F0008B01C0 /* BlendBetterUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5326E5E62F84E3F0008B01C0 /* Build configuration list for PBXNativeTarget "BlendBetterUITests" */;
+			buildPhases = (
+				5326E5D22F84E3F0008B01C0 /* Sources */,
+				5326E5D32F84E3F0008B01C0 /* Frameworks */,
+				5326E5D42F84E3F0008B01C0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5326E5D82F84E3F0008B01C0 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				5326E5D92F84E3F0008B01C0 /* BlendBetterUITests */,
+			);
+			name = BlendBetterUITests;
+			packageProductDependencies = (
+			);
+			productName = BlendBetterUITests;
+			productReference = 5326E5D62F84E3F0008B01C0 /* BlendBetterUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5326E5B72F84E3EF008B01C0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2640;
+				LastUpgradeCheck = 2640;
+				TargetAttributes = {
+					5326E5BE2F84E3EF008B01C0 = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					5326E5CB2F84E3F0008B01C0 = {
+						CreatedOnToolsVersion = 26.4;
+						TestTargetID = 5326E5BE2F84E3EF008B01C0;
+					};
+					5326E5D52F84E3F0008B01C0 = {
+						CreatedOnToolsVersion = 26.4;
+						TestTargetID = 5326E5BE2F84E3EF008B01C0;
+					};
+				};
+			};
+			buildConfigurationList = 5326E5BA2F84E3EF008B01C0 /* Build configuration list for PBXProject "BlendBetter" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 5326E5B62F84E3EF008B01C0;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 5326E5C02F84E3EF008B01C0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5326E5BE2F84E3EF008B01C0 /* BlendBetter */,
+				5326E5CB2F84E3F0008B01C0 /* BlendBetterTests */,
+				5326E5D52F84E3F0008B01C0 /* BlendBetterUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5326E5BD2F84E3EF008B01C0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5326E6142F84FC41008B01C0 /* .gitignore in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5326E5CA2F84E3F0008B01C0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5326E5D42F84E3F0008B01C0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5326E5BB2F84E3EF008B01C0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5326E5C82F84E3F0008B01C0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5326E5D22F84E3F0008B01C0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		5326E5CE2F84E3F0008B01C0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5326E5BE2F84E3EF008B01C0 /* BlendBetter */;
+			targetProxy = 5326E5CD2F84E3F0008B01C0 /* PBXContainerItemProxy */;
+		};
+		5326E5D82F84E3F0008B01C0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5326E5BE2F84E3EF008B01C0 /* BlendBetter */;
+			targetProxy = 5326E5D72F84E3F0008B01C0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		5326E5DE2F84E3F0008B01C0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		5326E5DF2F84E3F0008B01C0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		5326E5E12F84E3F0008B01C0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ARM4993PKR;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BlendBetter/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We use camera to detect fruits";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ca.BlendBetter;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		5326E5E22F84E3F0008B01C0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = ARM4993PKR;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BlendBetter/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We use camera to detect fruits";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ca.BlendBetter;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		5326E5E42F84E3F0008B01C0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ca.BlendBetterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BlendBetter.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BlendBetter";
+			};
+			name = Debug;
+		};
+		5326E5E52F84E3F0008B01C0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ca.BlendBetterTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BlendBetter.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BlendBetter";
+			};
+			name = Release;
+		};
+		5326E5E72F84E3F0008B01C0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ca.BlendBetterUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BlendBetter;
+			};
+			name = Debug;
+		};
+		5326E5E82F84E3F0008B01C0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ca.BlendBetterUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = BlendBetter;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5326E5BA2F84E3EF008B01C0 /* Build configuration list for PBXProject "BlendBetter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5326E5DE2F84E3F0008B01C0 /* Debug */,
+				5326E5DF2F84E3F0008B01C0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5326E5E02F84E3F0008B01C0 /* Build configuration list for PBXNativeTarget "BlendBetter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5326E5E12F84E3F0008B01C0 /* Debug */,
+				5326E5E22F84E3F0008B01C0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5326E5E32F84E3F0008B01C0 /* Build configuration list for PBXNativeTarget "BlendBetterTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5326E5E42F84E3F0008B01C0 /* Debug */,
+				5326E5E52F84E3F0008B01C0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5326E5E62F84E3F0008B01C0 /* Build configuration list for PBXNativeTarget "BlendBetterUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5326E5E72F84E3F0008B01C0 /* Debug */,
+				5326E5E82F84E3F0008B01C0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5326E5B72F84E3EF008B01C0 /* Project object */;
+}
