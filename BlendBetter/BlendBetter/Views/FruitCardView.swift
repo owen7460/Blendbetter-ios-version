@@ -42,6 +42,11 @@ struct FruitCardView: View {
             .frame(width: 68, height: 68)
             .clipShape(RoundedRectangle(cornerRadius: 16))
         }
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(fruit.name)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityHint(isDimmed ? "Limit reached. Remove a fruit to choose this one." : "")
         .opacity(isDimmed ? 0.35 : 1)
         .saturation(isDimmed ? 0.3 : 1)
         .animation(.easeInOut(duration: 0.2), value: isDimmed)

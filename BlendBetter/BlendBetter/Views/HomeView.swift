@@ -8,6 +8,10 @@ struct HomeView: View {
     @State private var showLimitHint = false
     @State private var limitHintToken = 0
 
+    /// Auto-scroll to new text only while the user hasn't scrolled away.
+    @State private var isFollowingStream = true
+    @State private var isNearBottom = true
+
     private var isGenerateDisabled: Bool {
         appViewModel.finalFruitList.isEmpty
             || appViewModel.isSelectionLocked
@@ -64,14 +68,16 @@ struct HomeView: View {
                         LazyVGrid(columns: columns, spacing: 16) {
                             ForEach(Fruit.featured) { fruit in
                                 let isSelected = appViewModel.selectedFruits.contains(fruit.name)
-                                FruitCardView(
-                                    fruit: fruit,
-                                    isSelected: isSelected,
-                                    isDimmed: !isSelected && !appViewModel.canAddMoreFruit()
-                                )
-                                .onTapGesture {
+                                Button {
                                     handleFruitTap(fruit.name)
+                                } label: {
+                                    FruitCardView(
+                                        fruit: fruit,
+                                        isSelected: isSelected,
+                                        isDimmed: !isSelected && !appViewModel.canAddMoreFruit()
+                                    )
                                 }
+                                .buttonStyle(.plain)
                             }
                         }
                         .padding(.horizontal)
@@ -124,9 +130,7 @@ struct HomeView: View {
                         }
 
                         Button {
-                            Task {
-                                await appViewModel.generateRecipe()
-                            }
+                            appViewModel.startGeneration()
                         } label: {
                             HStack(spacing: 8) {
                                 if appViewModel.isLoading {
@@ -157,11 +161,34 @@ struct HomeView: View {
                             .transition(.opacity.combined(with: .scale(scale: 0.95)))
                         }
 
+                        if appViewModel.isLoading {
+                            Button(role: .destructive) {
+                                appViewModel.stopGeneration()
+                            } label: {
+                                Label("Stop", systemImage: "stop.circle")
+                                    .font(.subheadline.weight(.semibold))
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(.red)
+                        }
+
                         if let errorMessage = appViewModel.errorMessage {
-                            Text(errorMessage)
-                                .foregroundStyle(.red)
-                                .font(.footnote)
-                                .padding(.horizontal)
+                            VStack(spacing: 10) {
+                                Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
+                                    .foregroundStyle(.red)
+                                    .font(.footnote)
+                                    .multilineTextAlignment(.center)
+
+                                Button {
+                                    appViewModel.startGeneration()
+                                } label: {
+                                    Label("Try Again", systemImage: "arrow.clockwise")
+                                        .font(.subheadline.weight(.semibold))
+                                }
+                                .buttonStyle(.bordered)
+                                .disabled(isGenerateDisabled)
+                            }
+                            .padding(.horizontal)
                         }
 
                         if !appViewModel.generatedText.isEmpty {
@@ -211,7 +238,32 @@ struct HomeView: View {
                 .scrollDismissesKeyboard(.interactively)
                 .animation(.easeInOut(duration: 0.25), value: appViewModel.isLoading)
                 .animation(.easeInOut(duration: 0.25), value: appViewModel.generatedText.isEmpty)
+                .onScrollGeometryChange(for: Bool.self) { geo in
+                    geo.contentOffset.y + geo.containerSize.height >= geo.contentSize.height - 60
+                } action: { _, nearBottom in
+                    isNearBottom = nearBottom
+                }
+                .onScrollPhaseChange { oldPhase, newPhase in
+                    if newPhase == .interacting {
+                        // The user is dragging the list: stop following.
+                        isFollowingStream = false
+                    } else if newPhase == .idle,
+                              oldPhase == .interacting || oldPhase == .decelerating {
+                        // Only after a user drag ends: resume if they're back at the bottom.
+                        // Our own scrollTo (.animating -> .idle) must not change this, because
+                        // content can still be growing when that animation stops.
+                        isFollowingStream = isNearBottom
+                    }
+                }
+                .onChange(of: appViewModel.isLoading) { _, isLoading in
+                    guard isLoading else { return }
+                    isFollowingStream = true
+                    withAnimation {
+                        proxy.scrollTo("bottomAnchor", anchor: .bottom)
+                    }
+                }
                 .onChange(of: appViewModel.generatedText) { _, _ in
+                    guard isFollowingStream else { return }
                     proxy.scrollTo("bottomAnchor", anchor: .bottom)
                 }
             }

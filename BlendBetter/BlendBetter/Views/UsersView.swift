@@ -101,13 +101,11 @@ struct UsersView: View {
     }
 
     private func addNewAllergen() {
-        if appViewModel.addCustomAllergen(newAllergen) {
-            newAllergen = ""
-        } else if !newAllergen.trimmingCharacters(in: .whitespaces).isEmpty {
-            // Already in the list – just clear the field.
-            newAllergen = ""
-        }
-        isInputFocused = true
+        guard !newAllergen.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        // Added, or already in the list – either way clear the field and hide the keyboard.
+        appViewModel.addCustomAllergen(newAllergen)
+        newAllergen = ""
+        isInputFocused = false
     }
 }
 

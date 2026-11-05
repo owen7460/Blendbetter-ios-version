@@ -58,6 +58,9 @@ final class AppViewModel: ObservableObject {
         guard !isSelectionLocked else { return }
         if selectedFruits.contains(fruit) {
             selectedFruits.removeAll { $0 == fruit }
+            if detectedFruit == fruit {
+                detectedFruit = nil
+            }
         } else {
             _ = addFruit(fruit)
         }
@@ -66,6 +69,7 @@ final class AppViewModel: ObservableObject {
     func clearAll() {
         selectedFruits = []
         detectedFruit = nil
+        pendingText = ""
         generatedText = ""
         errorMessage = nil
         isLoading = false
@@ -73,14 +77,10 @@ final class AppViewModel: ObservableObject {
         currentRecipe = nil
     }
 
+    /// Camera-detected fruits are added to `selectedFruits` directly,
+    /// so the selection is the single source of truth.
     var finalFruitList: [String] {
-        if !selectedFruits.isEmpty {
-            return selectedFruits
-        }
-        if let detectedFruit, !detectedFruit.isEmpty {
-            return [detectedFruit]
-        }
-        return []
+        selectedFruits
     }
 
     var promptText: String {
@@ -102,7 +102,29 @@ final class AppViewModel: ObservableObject {
         }
     }
 
-    func generateRecipe() async {
+    private var generationTask: Task<Void, Never>?
+
+    /// Streamed text not shown yet. Deltas are batched and flushed every 0.1s
+    /// so the Markdown view re-renders a few times a second, not on every token.
+    private var pendingText = ""
+    private var isFlushScheduled = false
+    private static let flushInterval: TimeInterval = 0.1
+
+    /// Starts generating (also used by "Try Again").
+    func startGeneration() {
+        guard generationTask == nil else { return }
+        generationTask = Task { [weak self] in
+            await self?.generateRecipe()
+            self?.generationTask = nil
+        }
+    }
+
+    /// Cancels the request and goes back to the selection state.
+    func stopGeneration() {
+        generationTask?.cancel()
+    }
+
+    private func generateRecipe() async {
         guard !finalFruitList.isEmpty, !isSelectionLocked, conflictingFruits.isEmpty else { return }
 
         isLoading = true
@@ -121,25 +143,84 @@ final class AppViewModel: ObservableObject {
             try await RecipeAPI.streamRecipe(
                 prompt: prompt,
                 onDelta: { delta in
-                    self.generatedText += delta
+                    self.appendStreamedText(delta)
                 },
                 onFinish: {
                     self.finishGeneration(fruits: fruits, option: option, allergens: avoided)
                 }
             )
+            // Stopped before the recipe finished (a finished one is kept).
+            if Task.isCancelled && isLoading {
+                resetAfterFailure(message: nil)
+                return
+            }
             // The stream can close without sending a "finish" event.
             if isLoading {
                 finishGeneration(fruits: fruits, option: option, allergens: avoided)
             }
         } catch {
-            self.errorMessage = error.localizedDescription
-            self.isLoading = false
-            self.isFinished = false
+            let cancelled = Task.isCancelled
+                || error is CancellationError
+                || (error as? URLError)?.code == .cancelled
+            resetAfterFailure(message: cancelled ? nil : Self.friendlyMessage(for: error))
         }
+    }
+
+    private func appendStreamedText(_ delta: String) {
+        pendingText += delta
+        guard !isFlushScheduled else { return }
+        isFlushScheduled = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.flushInterval) { [weak self] in
+            self?.flushStreamedText()
+        }
+    }
+
+    private func flushStreamedText() {
+        isFlushScheduled = false
+        guard !pendingText.isEmpty else { return }
+        generatedText += pendingText
+        pendingText = ""
+    }
+
+    /// Back to the editable state; `message == nil` means the user stopped it.
+    private func resetAfterFailure(message: String?) {
+        pendingText = ""
+        isLoading = false
+        isFinished = false
+        generatedText = ""
+        errorMessage = message
+    }
+
+    private static func friendlyMessage(for error: Error) -> String {
+        if let urlError = error as? URLError {
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost, .dataNotAllowed:
+                return "You're offline. Check your internet connection and try again."
+            case .timedOut:
+                return "The server took too long to respond. Please try again."
+            case .cannotFindHost, .cannotConnectToHost, .dnsLookupFailed:
+                return "Can't reach the BlendBetter server right now. Please try again later."
+            default:
+                break
+            }
+        }
+        let nsError = error as NSError
+        if nsError.domain == "RecipeAPI" {
+            switch nsError.code {
+            case 429:
+                return "Too many requests. Please wait a moment and try again."
+            case 500...599:
+                return "The BlendBetter server is having trouble. Please try again in a moment."
+            default:
+                return "Something went wrong (error \(nsError.code)). Please try again."
+            }
+        }
+        return "Something went wrong. Please try again."
     }
 
     private func finishGeneration(fruits: [String], option: RecipeOption, allergens: [String]) {
         guard isLoading else { return }
+        flushStreamedText()   // make sure the last batch is shown and saved
         isLoading = false
         isFinished = true
         currentRecipe = addToHistory(fruits: fruits, option: option, text: generatedText, allergens: allergens)

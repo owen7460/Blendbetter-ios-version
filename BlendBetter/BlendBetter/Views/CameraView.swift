@@ -7,42 +7,66 @@ struct CameraView: View {
     
     var body: some View {
         ZStack {
-            if let preview = camera.previewLayer {
-                CameraPreview(previewLayer: preview)
-                    .ignoresSafeArea()
-            } else {
+            switch camera.status {
+            case .ready:
+                if let preview = camera.previewLayer {
+                    CameraPreview(previewLayer: preview)
+                        .ignoresSafeArea()
+                }
+            case .starting:
                 ProgressView("Starting camera...")
+            case .unauthorized:
+                ContentUnavailableView {
+                    Label("Camera Access Needed", systemImage: "camera.fill")
+                } description: {
+                    Text("Allow camera access in Settings to detect fruits. You can still pick fruits on the Blend page.")
+                } actions: {
+                    Button("Open Settings") {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            case .unavailable:
+                ContentUnavailableView(
+                    "Camera Unavailable",
+                    systemImage: "camera.slash",
+                    description: Text("No camera is available on this device. You can still pick fruits on the Blend page.")
+                )
             }
             
-            VStack {
-                Spacer()
-                
-                if let image = camera.capturedImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(height: 150)
-                        .cornerRadius(12)
-                        .padding(.horizontal)
+            if camera.status == .ready {
+                VStack {
+                    Spacer()
                     
-                    Text(detectedText)
-                        .padding(.bottom, 8)
-                        .foregroundStyle(.white)
-                        .fontWeight(.semibold)
+                    if let image = camera.capturedImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 150)
+                            .cornerRadius(12)
+                            .padding(.horizontal)
+                        
+                        Text(detectedText)
+                            .padding(.bottom, 8)
+                            .foregroundStyle(.white)
+                            .fontWeight(.semibold)
+                    }
+                    
+                    Button {
+                        camera.capture()
+                    } label: {
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 70, height: 70)
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.black, lineWidth: 2)
+                            )
+                    }
+                    .padding(.bottom, 40)
                 }
-                
-                Button {
-                    camera.capture()
-                } label: {
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 70, height: 70)
-                        .overlay(
-                            Circle()
-                                .stroke(Color.black, lineWidth: 2)
-                        )
-                }
-                .padding(.bottom, 40)
             }
         }
         .onAppear {
@@ -63,11 +87,11 @@ struct CameraView: View {
                 DispatchQueue.main.async {
                     if let fruit {
                         print("Detected fruit: \(fruit)")
-                        appViewModel.detectedFruit = fruit
-                        
                         let added = appViewModel.addFruit(fruit)
                         
                         if added || appViewModel.selectedFruits.contains(fruit) {
+                            // Only remember it when it actually made it into the selection.
+                            appViewModel.detectedFruit = fruit
                             detectedText = "Detected: \(fruit)"
                             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                             

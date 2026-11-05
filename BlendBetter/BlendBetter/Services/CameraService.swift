@@ -10,20 +10,47 @@ import Combine
 
 class CameraService: NSObject, ObservableObject {
 
+    enum Status {
+        case starting
+        case ready
+        /// The user denied (or restricted) camera access.
+        case unauthorized
+        /// No usable camera, e.g. the Simulator.
+        case unavailable
+    }
+
     @Published var capturedImage: UIImage?
+    @Published private(set) var status: Status = .starting
+    @Published private(set) var previewLayer: AVCaptureVideoPreviewLayer?
 
     private let session = AVCaptureSession()
     private let output = AVCapturePhotoOutput()
     private let queue = DispatchQueue(label: "camera.queue")
+    private var isConfigured = false
 
-    var previewLayer: AVCaptureVideoPreviewLayer?
-
-    override init() {
-        super.init()
-        configure()
+    /// Checks permission (asking the first time), configures once, then runs.
+    func start() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            if configureIfNeeded() { startRunning() }
+        case .notDetermined:
+            Task {
+                let granted = await AVCaptureDevice.requestAccess(for: .video)
+                if granted {
+                    if self.configureIfNeeded() { self.startRunning() }
+                } else {
+                    self.status = .unauthorized
+                }
+            }
+        default:
+            status = .unauthorized
+        }
     }
 
-    private func configure() {
+    @discardableResult
+    private func configureIfNeeded() -> Bool {
+        if isConfigured { return true }
+
         session.beginConfiguration()
         session.sessionPreset = .photo
 
@@ -35,7 +62,8 @@ class CameraService: NSObject, ObservableObject {
             session.canAddInput(input)
         else {
             session.commitConfiguration()
-            return
+            status = .unavailable
+            return false
         }
 
         session.addInput(input)
@@ -46,11 +74,16 @@ class CameraService: NSObject, ObservableObject {
 
         session.commitConfiguration()
 
-        previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer?.videoGravity = .resizeAspectFill
+        let layer = AVCaptureVideoPreviewLayer(session: session)
+        layer.videoGravity = .resizeAspectFill
+        previewLayer = layer
+
+        isConfigured = true
+        status = .ready
+        return true
     }
 
-    func start() {
+    private func startRunning() {
         queue.async {
             if !self.session.isRunning {
                 self.session.startRunning()
@@ -67,6 +100,7 @@ class CameraService: NSObject, ObservableObject {
     }
 
     func capture() {
+        guard status == .ready else { return }
         let settings = AVCapturePhotoSettings()
         output.capturePhoto(with: settings, delegate: self)
     }
