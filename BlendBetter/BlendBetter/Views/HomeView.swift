@@ -155,17 +155,24 @@ struct HomeView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
 
                                 if appViewModel.isFinished {
-                                    Button {
-                                        appViewModel.clearAll()
-                                    } label: {
-                                        Text("Clear & Start Over")
-                                            .fontWeight(.bold)
-                                            .frame(maxWidth: .infinity)
-                                            .padding()
-                                            .background(Color(red: 0.48, green: 0.78, blue: 0.51))
-                                            .foregroundColor(.white)
-                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    HStack(spacing: 12) {
+                                        Button {
+                                            appViewModel.clearAll()
+                                        } label: {
+                                            Text("Clear & Start Over")
+                                                .fontWeight(.bold)
+                                                .frame(maxWidth: .infinity)
+                                                .padding()
+                                                .background(Color(red: 0.48, green: 0.78, blue: 0.51))
+                                                .foregroundColor(.white)
+                                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        }
+
+                                        if let recipe = appViewModel.currentRecipe {
+                                            CollectButton(recipe: recipe)
+                                        }
                                     }
+                                    .fixedSize(horizontal: false, vertical: true)
                                     .transition(.opacity)
                                 }
                             }

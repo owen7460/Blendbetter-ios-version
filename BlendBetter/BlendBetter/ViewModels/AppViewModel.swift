@@ -23,8 +23,15 @@ final class AppViewModel: ObservableObject {
     /// Saved recipes, newest first.
     @Published private(set) var history: [RecipeHistoryItem] = []
 
+    /// Recipes the user added to Collections, most recently added first.
+    @Published private(set) var collections: [RecipeHistoryItem] = []
+
+    /// The recipe currently shown on the Blend page once generation is finished.
+    @Published private(set) var currentRecipe: RecipeHistoryItem? = nil
+
     init() {
-        history = HistoryStore.load()
+        history = RecipeFileStore.history.load()
+        collections = RecipeFileStore.collections.load()
     }
     
     /// Maximum number of fruits in one recipe.
@@ -58,6 +65,7 @@ final class AppViewModel: ObservableObject {
         errorMessage = nil
         isLoading = false
         isFinished = false
+        currentRecipe = nil
     }
 
     var finalFruitList: [String] {
@@ -114,14 +122,15 @@ final class AppViewModel: ObservableObject {
         guard isLoading else { return }
         isLoading = false
         isFinished = true
-        addToHistory(fruits: fruits, option: option, text: generatedText)
+        currentRecipe = addToHistory(fruits: fruits, option: option, text: generatedText)
     }
 
     // MARK: - History
 
-    private func addToHistory(fruits: [String], option: RecipeOption, text: String) {
+    @discardableResult
+    private func addToHistory(fruits: [String], option: RecipeOption, text: String) -> RecipeHistoryItem? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty else { return nil }
 
         let item = RecipeHistoryItem(
             recipeOptionId: option.id,
@@ -132,12 +141,13 @@ final class AppViewModel: ObservableObject {
         if history.count > HistoryStore.maxItems {
             history.removeLast(history.count - HistoryStore.maxItems)
         }
-        HistoryStore.save(history)
+        RecipeFileStore.history.save(history)
+        return item
     }
 
     func deleteHistory(ids: Set<UUID>) {
         history.removeAll { ids.contains($0.id) }
-        HistoryStore.save(history)
+        RecipeFileStore.history.save(history)
     }
 
     func deleteHistory(_ item: RecipeHistoryItem) {
@@ -146,7 +156,28 @@ final class AppViewModel: ObservableObject {
 
     func clearHistory() {
         history.removeAll()
-        HistoryStore.save(history)
+        RecipeFileStore.history.save(history)
+    }
+
+    // MARK: - Collections
+
+    func isCollected(_ item: RecipeHistoryItem) -> Bool {
+        collections.contains { $0.id == item.id }
+    }
+
+    /// Adds the recipe to Collections, or removes it if it's already there.
+    func toggleCollection(_ item: RecipeHistoryItem) {
+        if isCollected(item) {
+            collections.removeAll { $0.id == item.id }
+        } else {
+            collections.insert(item, at: 0)
+        }
+        RecipeFileStore.collections.save(collections)
+    }
+
+    func removeFromCollections(ids: Set<UUID>) {
+        collections.removeAll { ids.contains($0.id) }
+        RecipeFileStore.collections.save(collections)
     }
 
     /// Puts a history item's fruits and recipe type back on the Blend page

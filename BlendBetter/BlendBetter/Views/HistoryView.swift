@@ -118,6 +118,8 @@ struct HistoryView: View {
 
 struct HistoryRowView: View {
     let item: RecipeHistoryItem
+    /// Show the date instead of only the time (used where items span many days).
+    var showsDate: Bool = false
 
     var body: some View {
         HStack(spacing: 12) {
@@ -141,7 +143,13 @@ struct HistoryRowView: View {
 
             Spacer(minLength: 8)
 
-            Text(item.createdAt, style: .time)
+            Group {
+                if showsDate {
+                    Text(item.createdAt, format: .dateTime.month(.abbreviated).day())
+                } else {
+                    Text(item.createdAt, style: .time)
+                }
+            }
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
@@ -155,7 +163,14 @@ struct HistoryDetailView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @Environment(\.dismiss) private var dismiss
 
+    enum Source {
+        case history
+        case collections
+    }
+
     let item: RecipeHistoryItem
+    /// Where the detail was opened from; decides what "Delete" removes.
+    var source: Source = .history
     /// Called after "Blend Again" so the parent can close the history sheet.
     var onBlendAgain: () -> Void = {}
 
@@ -195,6 +210,15 @@ struct HistoryDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    appViewModel.toggleCollection(item)
+                } label: {
+                    Image(systemName: appViewModel.isCollected(item) ? "heart.fill" : "heart")
+                        .foregroundStyle(appViewModel.isCollected(item) ? Color.pink : Color.accentColor)
+                        .symbolEffect(.bounce, value: appViewModel.isCollected(item))
+                }
+                .accessibilityLabel(appViewModel.isCollected(item) ? "Remove from Collections" : "Add to Collections")
+
                 ShareLink(item: item.text) {
                     Image(systemName: "square.and.arrow.up")
                 }
@@ -210,7 +234,10 @@ struct HistoryDetailView: View {
                     Button(role: .destructive) {
                         showDeleteConfirm = true
                     } label: {
-                        Label("Delete", systemImage: "trash")
+                        Label(
+                            source == .collections ? "Remove from Collections" : "Delete from History",
+                            systemImage: "trash"
+                        )
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -218,12 +245,17 @@ struct HistoryDetailView: View {
             }
         }
         .confirmationDialog(
-            "Delete this recipe?",
+            source == .collections ? "Remove from Collections?" : "Delete from History?",
             isPresented: $showDeleteConfirm,
             titleVisibility: .visible
         ) {
-            Button("Delete", role: .destructive) {
-                appViewModel.deleteHistory(item)
+            Button(source == .collections ? "Remove" : "Delete", role: .destructive) {
+                switch source {
+                case .history:
+                    appViewModel.deleteHistory(item)
+                case .collections:
+                    appViewModel.removeFromCollections(ids: [item.id])
+                }
                 dismiss()
             }
         }
