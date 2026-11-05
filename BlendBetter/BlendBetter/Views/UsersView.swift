@@ -19,6 +19,7 @@ struct UsersView: View {
 
                     preferencesCard
                     allergiesCard
+                    aiSharingCard
                     disclaimer
                 }
                 .padding()
@@ -118,6 +119,11 @@ struct UsersView: View {
 
             HStack(spacing: 10) {
                 TextField("Add another, e.g. Kiwi", text: $newAllergen)
+                    .onChange(of: newAllergen) { _, value in
+                        if value.count > AppViewModel.maxAllergenLength {
+                            newAllergen = String(value.prefix(AppViewModel.maxAllergenLength))
+                        }
+                    }
                     .focused($isInputFocused)
                     .submitLabel(.done)
                     .onSubmit(addNewAllergen)
@@ -182,6 +188,36 @@ struct UsersView: View {
         .padding(.vertical, 8)
         .foregroundStyle(Color.white)
         .background(Capsule().fill(Color.allergyRed))
+    }
+
+    // MARK: - AI data sharing
+
+    private var aiSharingCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Toggle(isOn: Binding(
+                get: { appViewModel.hasAIConsent },
+                set: { isOn in
+                    if isOn {
+                        appViewModel.grantAIConsent()
+                    } else {
+                        appViewModel.revokeAIConsent()
+                    }
+                }
+            )) {
+                sectionTitle("Share with AI to generate", systemImage: "sparkles", color: .brandGreenDeep)
+            }
+            .tint(Color.brandGreen)
+
+            Text("Your fruits, drink type, allergies and dietary preferences are sent to BlendBetter's server and a third-party AI provider each time you generate a recipe. See our Privacy Policy for details. Recipes can't be generated while this is off.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            if let url = AppLinks.privacyPolicyURL {
+                Link("Privacy Policy", destination: url)
+                    .font(.caption.weight(.semibold))
+            }
+        }
+        .card()
     }
 
     // MARK: - Shared bits

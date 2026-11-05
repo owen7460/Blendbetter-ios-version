@@ -19,7 +19,7 @@ struct CameraView: View {
                 ContentUnavailableView {
                     Label("Camera Access Needed", systemImage: "camera.fill")
                 } description: {
-                    Text("Allow camera access in Settings to detect fruits. You can still pick fruits on the Blend page.")
+                    Text("Allow camera access in Settings to detect fruits. You can still pick fruits on the Blend tab.")
                 } actions: {
                     Button("Open Settings") {
                         if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -31,8 +31,8 @@ struct CameraView: View {
             case .unavailable:
                 ContentUnavailableView(
                     "Camera Unavailable",
-                    systemImage: "camera.slash",
-                    description: Text("No camera is available on this device. You can still pick fruits on the Blend page.")
+                    systemImage: "video.slash",
+                    description: Text("No camera is available on this device. You can still pick fruits on the Blend tab.")
                 )
             }
             
@@ -80,13 +80,11 @@ struct CameraView: View {
         .onChange(of: camera.capturedImage) { _, newImage in
             guard let newImage else { return }
             
-            print("Captured image received")
             detectedText = "Recognizing..."
             
             FruitRecognitionService.shared.recognizeFruit(from: newImage) { fruit in
                 DispatchQueue.main.async {
                     if let fruit {
-                        print("Detected fruit: \(fruit)")
                         let added = appViewModel.addFruit(fruit)
                         
                         if added || appViewModel.selectedFruits.contains(fruit) {
@@ -106,7 +104,6 @@ struct CameraView: View {
                             detectedText = "Maximum \(AppViewModel.maxFruits) fruits allowed"
                         }
                     } else {
-                        print("No fruit recognized")
                         detectedText = "Could not recognize fruit"
                     }
                 }

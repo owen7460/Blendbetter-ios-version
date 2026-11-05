@@ -36,11 +36,19 @@ final class AppViewModel: ObservableObject {
     @Published private(set) var dietaryPreferenceIDs: [String] = []
     private static let preferencesKey = "dietaryPreferences"
 
+    /// Whether the user agreed to send their recipe inputs (fruits, allergies,
+    /// preferences) to the AI service. Required before the first generation.
+    @Published private(set) var hasAIConsent = false
+    /// Drives the consent sheet on the Blend page.
+    @Published var showAIConsent = false
+    private static let aiConsentKey = "aiDataSharingConsent"
+
     init() {
         history = RecipeFileStore.history.load()
         collections = RecipeFileStore.collections.load()
         allergens = UserDefaults.standard.stringArray(forKey: Self.allergensKey) ?? []
         dietaryPreferenceIDs = UserDefaults.standard.stringArray(forKey: Self.preferencesKey) ?? []
+        hasAIConsent = UserDefaults.standard.bool(forKey: Self.aiConsentKey)
     }
     
     /// Maximum number of fruits in one recipe.
@@ -118,10 +126,25 @@ final class AppViewModel: ObservableObject {
     /// Starts generating (also used by "Try Again").
     func startGeneration() {
         guard generationTask == nil else { return }
+        // Nothing leaves the device until the user has agreed.
+        guard hasAIConsent else {
+            showAIConsent = true
+            return
+        }
         generationTask = Task { [weak self] in
             await self?.generateRecipe()
             self?.generationTask = nil
         }
+    }
+
+    func grantAIConsent() {
+        hasAIConsent = true
+        UserDefaults.standard.set(true, forKey: Self.aiConsentKey)
+    }
+
+    func revokeAIConsent() {
+        hasAIConsent = false
+        UserDefaults.standard.set(false, forKey: Self.aiConsentKey)
     }
 
     /// Cancels the request and goes back to the selection state.
@@ -346,11 +369,19 @@ final class AppViewModel: ObservableObject {
         saveAllergens()
     }
 
-    /// Adds a typed-in allergen. Returns false if it's empty or already listed.
+    /// Longest custom allergen name, and how many custom ones can be added.
+    /// Keeps the prompt well under the server's size limit.
+    static let maxAllergenLength = 40
+    static let maxCustomAllergens = 20
+
+    /// Adds a typed-in allergen. Returns false if it's empty, already listed,
+    /// or the custom list is full. Long names are cut to `maxAllergenLength`.
     @discardableResult
     func addCustomAllergen(_ raw: String) -> Bool {
-        let name = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !name.isEmpty, !isAllergenSelected(name) else { return false }
+        let name = String(raw.trimmingCharacters(in: .whitespacesAndNewlines).prefix(Self.maxAllergenLength))
+            .trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty, !isAllergenSelected(name),
+              customAllergens.count < Self.maxCustomAllergens else { return false }
         allergens.append(name)
         saveAllergens()
         return true

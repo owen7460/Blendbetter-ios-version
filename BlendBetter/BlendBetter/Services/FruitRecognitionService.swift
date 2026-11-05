@@ -53,11 +53,6 @@ final class FruitRecognitionService {
                 return
             }
 
-            print("Top Vision results:")
-            for result in results.prefix(10) {
-                print("-", result.identifier, result.confidence)
-            }
-
             for result in results.prefix(10) {
                 let label = FruitRecognitionService.normalize(result.identifier)
                 if let match = keywords.first(where: { FruitRecognitionService.label(label, matches: $0.key) }) {

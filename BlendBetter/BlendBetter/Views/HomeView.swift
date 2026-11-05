@@ -121,6 +121,9 @@ struct HomeView: View {
             .sheet(isPresented: $showHistory) {
                 HistoryView()
             }
+            .sheet(isPresented: $appViewModel.showAIConsent) {
+                AIConsentView()
+            }
         }
     }
 
