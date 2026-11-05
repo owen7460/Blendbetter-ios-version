@@ -15,6 +15,8 @@ nonisolated struct RecipeHistoryItem: Identifiable, Codable, Hashable {
     /// Allergens excluded when this recipe was generated.
     /// Optional so history saved before this field existed still decodes.
     let allergens: [String]?
+    /// Dietary preference labels applied (e.g. "Vegan"). Optional for older data.
+    let preferences: [String]?
 
     init(
         id: UUID = UUID(),
@@ -22,7 +24,8 @@ nonisolated struct RecipeHistoryItem: Identifiable, Codable, Hashable {
         recipeOptionId: String,
         fruits: [String],
         text: String,
-        allergens: [String]? = nil
+        allergens: [String]? = nil,
+        preferences: [String]? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
@@ -30,6 +33,7 @@ nonisolated struct RecipeHistoryItem: Identifiable, Codable, Hashable {
         self.fruits = fruits
         self.text = text
         self.allergens = allergens
+        self.preferences = preferences
     }
 
     /// The recipe type this item was generated with (falls back to the first option).

@@ -33,10 +33,15 @@ final class AppViewModel: ObservableObject {
     @Published private(set) var allergens: [String] = []
     private static let allergensKey = "allergens"
 
+    /// Ids of the dietary preferences that are switched on.
+    @Published private(set) var dietaryPreferenceIDs: [String] = []
+    private static let preferencesKey = "dietaryPreferences"
+
     init() {
         history = RecipeFileStore.history.load()
         collections = RecipeFileStore.collections.load()
         allergens = UserDefaults.standard.stringArray(forKey: Self.allergensKey) ?? []
+        dietaryPreferenceIDs = UserDefaults.standard.stringArray(forKey: Self.preferencesKey) ?? []
     }
     
     /// Maximum number of fruits in one recipe.
@@ -92,6 +97,11 @@ final class AppViewModel: ObservableObject {
             text += " or likely to contain them (including milks, yogurts, syrups, toppings and garnishes)."
             text += " Use safe substitutes where needed, and end with a short note listing what was avoided."
         }
+        let preferences = activePreferences
+        if !preferences.isEmpty {
+            text += " Also follow these dietary preferences: "
+            text += preferences.map(\.instruction).joined(separator: " ")
+        }
         return text
     }
 
@@ -138,6 +148,7 @@ final class AppViewModel: ObservableObject {
         let fruits = finalFruitList
         let option = selectedRecipeOption
         let avoided = allergens
+        let preferenceLabels = activePreferences.map(\.label)
 
         do {
             try await RecipeAPI.streamRecipe(
@@ -146,7 +157,7 @@ final class AppViewModel: ObservableObject {
                     self.appendStreamedText(delta)
                 },
                 onFinish: {
-                    self.finishGeneration(fruits: fruits, option: option, allergens: avoided)
+                    self.finishGeneration(fruits: fruits, option: option, allergens: avoided, preferences: preferenceLabels)
                 }
             )
             // Stopped before the recipe finished (a finished one is kept).
@@ -156,7 +167,7 @@ final class AppViewModel: ObservableObject {
             }
             // The stream can close without sending a "finish" event.
             if isLoading {
-                finishGeneration(fruits: fruits, option: option, allergens: avoided)
+                finishGeneration(fruits: fruits, option: option, allergens: avoided, preferences: preferenceLabels)
             }
         } catch {
             let cancelled = Task.isCancelled
@@ -218,18 +229,18 @@ final class AppViewModel: ObservableObject {
         return "Something went wrong. Please try again."
     }
 
-    private func finishGeneration(fruits: [String], option: RecipeOption, allergens: [String]) {
+    private func finishGeneration(fruits: [String], option: RecipeOption, allergens: [String], preferences: [String]) {
         guard isLoading else { return }
         flushStreamedText()   // make sure the last batch is shown and saved
         isLoading = false
         isFinished = true
-        currentRecipe = addToHistory(fruits: fruits, option: option, text: generatedText, allergens: allergens)
+        currentRecipe = addToHistory(fruits: fruits, option: option, text: generatedText, allergens: allergens, preferences: preferences)
     }
 
     // MARK: - History
 
     @discardableResult
-    private func addToHistory(fruits: [String], option: RecipeOption, text: String, allergens: [String]) -> RecipeHistoryItem? {
+    private func addToHistory(fruits: [String], option: RecipeOption, text: String, allergens: [String], preferences: [String]) -> RecipeHistoryItem? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
 
@@ -237,7 +248,8 @@ final class AppViewModel: ObservableObject {
             recipeOptionId: option.id,
             fruits: fruits,
             text: trimmed,
-            allergens: allergens.isEmpty ? nil : allergens
+            allergens: allergens.isEmpty ? nil : allergens,
+            preferences: preferences.isEmpty ? nil : preferences
         )
         history.insert(item, at: 0)
         if history.count > HistoryStore.maxItems {
@@ -259,6 +271,52 @@ final class AppViewModel: ObservableObject {
     func clearHistory() {
         history.removeAll()
         RecipeFileStore.history.save(history)
+    }
+
+    // MARK: - Surprise me
+
+    /// Replaces the selection with 2–3 random fruits that aren't on the allergy list.
+    /// Returns false if there aren't enough safe fruits to pick from.
+    @discardableResult
+    func surpriseMe() -> Bool {
+        guard !isSelectionLocked else { return false }
+
+        let safeFruits = Fruit.all
+            .map(\.name)
+            .filter { fruit in !allergens.contains { Allergen.fruit(fruit, conflictsWith: $0) } }
+        guard safeFruits.count >= 2 else { return false }
+
+        let count = min(Int.random(in: 2...Self.maxFruits), safeFruits.count)
+        var pick = Array(safeFruits.shuffled().prefix(count))
+        // Avoid handing back exactly the same set twice in a row.
+        var attempts = 0
+        while Set(pick) == Set(selectedFruits) && attempts < 5 {
+            pick = Array(safeFruits.shuffled().prefix(count))
+            attempts += 1
+        }
+
+        selectedFruits = pick
+        detectedFruit = nil
+        errorMessage = nil
+        return true
+    }
+
+    // MARK: - Dietary preferences
+
+    var activePreferences: [DietaryPreference] {
+        DietaryPreference.all.filter { dietaryPreferenceIDs.contains($0.id) }
+    }
+
+    func isPreferenceOn(_ preference: DietaryPreference) -> Bool {
+        dietaryPreferenceIDs.contains(preference.id)
+    }
+
+    func setPreference(_ preference: DietaryPreference, isOn: Bool) {
+        dietaryPreferenceIDs.removeAll { $0 == preference.id }
+        if isOn {
+            dietaryPreferenceIDs.append(preference.id)
+        }
+        UserDefaults.standard.set(dietaryPreferenceIDs, forKey: Self.preferencesKey)
     }
 
     // MARK: - Allergens

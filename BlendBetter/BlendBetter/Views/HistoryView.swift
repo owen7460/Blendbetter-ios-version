@@ -214,7 +214,7 @@ struct HistoryDetailView: View {
                     appViewModel.toggleCollection(item)
                 } label: {
                     Image(systemName: appViewModel.isCollected(item) ? "heart.fill" : "heart")
-                        .foregroundStyle(appViewModel.isCollected(item) ? Color.pink : Color.accentColor)
+                        .foregroundStyle(appViewModel.isCollected(item) ? Color.collectYellow : Color.accentColor)
                         .symbolEffect(.bounce, value: appViewModel.isCollected(item))
                 }
                 .accessibilityLabel(appViewModel.isCollected(item) ? "Remove from Collections" : "Add to Collections")
@@ -272,6 +272,12 @@ struct HistoryDetailView: View {
 
             if let allergens = item.allergens, !allergens.isEmpty {
                 Label("Avoided: \(allergens.joined(separator: ", "))", systemImage: "exclamationmark.shield")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if let preferences = item.preferences, !preferences.isEmpty {
+                Label("Preferences: \(preferences.joined(separator: ", "))", systemImage: "leaf")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

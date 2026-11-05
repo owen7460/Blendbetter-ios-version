@@ -12,6 +12,11 @@ struct HomeView: View {
     @State private var isFollowingStream = true
     @State private var isNearBottom = true
 
+    /// "Surprise me" feedback: banner text, a token to time its dismissal, and a counter for the dice animation.
+    @State private var surpriseMessage: String?
+    @State private var surpriseToken = 0
+    @State private var surpriseCount = 0
+
     private var isGenerateDisabled: Bool {
         appViewModel.finalFruitList.isEmpty
             || appViewModel.isSelectionLocked
@@ -42,6 +47,47 @@ struct HomeView: View {
         appViewModel.toggleFruit(name)
     }
 
+    private func handleSurpriseMe() {
+        var picked = false
+        withAnimation(.spring(duration: 0.35)) {
+            showLimitHint = false
+            picked = appViewModel.surpriseMe()
+        }
+        surpriseCount += 1
+
+        let message: String
+        if picked {
+            message = "Surprise! " + Self.naturalList(appViewModel.selectedFruits)
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        } else {
+            message = "Not enough safe fruits to pick from."
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        }
+        showSurpriseToast(message)
+    }
+
+    private func showSurpriseToast(_ message: String) {
+        surpriseToken += 1
+        let token = surpriseToken
+        withAnimation(.spring(duration: 0.4)) {
+            surpriseMessage = message
+        }
+        AccessibilityNotification.Announcement(message).post()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+            guard token == surpriseToken else { return }
+            withAnimation(.easeOut(duration: 0.25)) {
+                surpriseMessage = nil
+            }
+        }
+    }
+
+    /// "Mango", "Mango & Lime", "Mango, Lychee & Lime"
+    private static func naturalList(_ items: [String]) -> String {
+        guard items.count > 1, let last = items.last else { return items.first ?? "" }
+        return items.dropLast().joined(separator: ", ") + " & " + last
+    }
+
     private let columns = [
         GridItem(.flexible()),
         GridItem(.flexible()),
@@ -62,6 +108,18 @@ struct HomeView: View {
                                 .font(.subheadline)
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(.secondary)
+
+                            Button {
+                                handleSurpriseMe()
+                            } label: {
+                                Label("Surprise me", systemImage: "dice")
+                                    .font(.subheadline.weight(.semibold))
+                                    .symbolEffect(.rotate, value: surpriseCount)
+                            }
+                            .buttonStyle(.bordered)
+                            .tint(Color(red: 0.48, green: 0.78, blue: 0.51))
+                            .disabled(appViewModel.isSelectionLocked)
+                            .padding(.top, 4)
                         }
                         .padding(.horizontal)
 
@@ -114,6 +172,19 @@ struct HomeView: View {
                                     appViewModel.selectedTab = 2
                                 } label: {
                                     Label("Avoiding: \(appViewModel.allergens.joined(separator: ", "))", systemImage: "exclamationmark.shield")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal)
+                                }
+                                .buttonStyle(.plain)
+                            }
+
+                            if !appViewModel.activePreferences.isEmpty {
+                                Button {
+                                    appViewModel.selectedTab = 2
+                                } label: {
+                                    Label("Preferences: \(appViewModel.activePreferences.map(\.label).joined(separator: ", "))", systemImage: "leaf")
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
                                         .multilineTextAlignment(.center)
@@ -265,6 +336,17 @@ struct HomeView: View {
                 .onChange(of: appViewModel.generatedText) { _, _ in
                     guard isFollowingStream else { return }
                     proxy.scrollTo("bottomAnchor", anchor: .bottom)
+                }
+            }
+            .overlay(alignment: .top) {
+                if let surpriseMessage {
+                    SurpriseToast(message: surpriseMessage)
+                        .padding(.top, 8)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .id(surpriseToken)   // replay the animation on every tap
+                        .onTapGesture {
+                            withAnimation(.easeOut(duration: 0.2)) { self.surpriseMessage = nil }
+                        }
                 }
             }
             .navigationBarTitleDisplayMode(.inline)

@@ -13,6 +13,27 @@ struct UsersView: View {
         NavigationStack {
             Form {
                 Section {
+                    ForEach(DietaryPreference.all) { preference in
+                        Toggle(isOn: Binding(
+                            get: { appViewModel.isPreferenceOn(preference) },
+                            set: { appViewModel.setPreference(preference, isOn: $0) }
+                        )) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(preference.label)
+                                Text(preference.detail)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .tint(green)
+                    }
+                } header: {
+                    Text("Dietary preferences")
+                } footer: {
+                    Text("Every recipe will follow the preferences you turn on.")
+                }
+
+                Section {
                     ForEach(Allergen.common, id: \.self) { name in
                         Button {
                             appViewModel.toggleAllergen(name)
@@ -84,7 +105,7 @@ struct UsersView: View {
                     .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle("My Allergies")
+            .navigationTitle("Allergies & Diet")
             .scrollDismissesKeyboard(.interactively)
             .confirmationDialog(
                 "Clear all allergies?",
