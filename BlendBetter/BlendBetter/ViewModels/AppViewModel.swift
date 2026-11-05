@@ -29,9 +29,14 @@ final class AppViewModel: ObservableObject {
     /// The recipe currently shown on the Blend page once generation is finished.
     @Published private(set) var currentRecipe: RecipeHistoryItem? = nil
 
+    /// Ingredients the user is allergic to; added to every prompt.
+    @Published private(set) var allergens: [String] = []
+    private static let allergensKey = "allergens"
+
     init() {
         history = RecipeFileStore.history.load()
         collections = RecipeFileStore.collections.load()
+        allergens = UserDefaults.standard.stringArray(forKey: Self.allergensKey) ?? []
     }
     
     /// Maximum number of fruits in one recipe.
@@ -80,11 +85,25 @@ final class AppViewModel: ObservableObject {
 
     var promptText: String {
         let joined = finalFruitList.joined(separator: ", ")
-        return "\(selectedRecipeOption.prefix) \(joined)."
+        var text = "\(selectedRecipeOption.prefix) \(joined)."
+        if !allergens.isEmpty {
+            text += " IMPORTANT: I am allergic to \(allergens.joined(separator: ", "))."
+            text += " The recipe must not contain any of these, or any ingredient made from"
+            text += " or likely to contain them (including milks, yogurts, syrups, toppings and garnishes)."
+            text += " Use safe substitutes where needed, and end with a short note listing what was avoided."
+        }
+        return text
+    }
+
+    /// Selected fruits that are on the user's allergy list.
+    var conflictingFruits: [String] {
+        finalFruitList.filter { fruit in
+            allergens.contains { Allergen.fruit(fruit, conflictsWith: $0) }
+        }
     }
 
     func generateRecipe() async {
-        guard !finalFruitList.isEmpty, !isSelectionLocked else { return }
+        guard !finalFruitList.isEmpty, !isSelectionLocked, conflictingFruits.isEmpty else { return }
 
         isLoading = true
         isFinished = false
@@ -96,6 +115,7 @@ final class AppViewModel: ObservableObject {
         // changes the selection while the response is still streaming.
         let fruits = finalFruitList
         let option = selectedRecipeOption
+        let avoided = allergens
 
         do {
             try await RecipeAPI.streamRecipe(
@@ -104,12 +124,12 @@ final class AppViewModel: ObservableObject {
                     self.generatedText += delta
                 },
                 onFinish: {
-                    self.finishGeneration(fruits: fruits, option: option)
+                    self.finishGeneration(fruits: fruits, option: option, allergens: avoided)
                 }
             )
             // The stream can close without sending a "finish" event.
             if isLoading {
-                finishGeneration(fruits: fruits, option: option)
+                finishGeneration(fruits: fruits, option: option, allergens: avoided)
             }
         } catch {
             self.errorMessage = error.localizedDescription
@@ -118,24 +138,25 @@ final class AppViewModel: ObservableObject {
         }
     }
 
-    private func finishGeneration(fruits: [String], option: RecipeOption) {
+    private func finishGeneration(fruits: [String], option: RecipeOption, allergens: [String]) {
         guard isLoading else { return }
         isLoading = false
         isFinished = true
-        currentRecipe = addToHistory(fruits: fruits, option: option, text: generatedText)
+        currentRecipe = addToHistory(fruits: fruits, option: option, text: generatedText, allergens: allergens)
     }
 
     // MARK: - History
 
     @discardableResult
-    private func addToHistory(fruits: [String], option: RecipeOption, text: String) -> RecipeHistoryItem? {
+    private func addToHistory(fruits: [String], option: RecipeOption, text: String, allergens: [String]) -> RecipeHistoryItem? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
 
         let item = RecipeHistoryItem(
             recipeOptionId: option.id,
             fruits: fruits,
-            text: trimmed
+            text: trimmed,
+            allergens: allergens.isEmpty ? nil : allergens
         )
         history.insert(item, at: 0)
         if history.count > HistoryStore.maxItems {
@@ -157,6 +178,50 @@ final class AppViewModel: ObservableObject {
     func clearHistory() {
         history.removeAll()
         RecipeFileStore.history.save(history)
+    }
+
+    // MARK: - Allergens
+
+    /// Allergens that aren't in the common list (typed in by the user).
+    var customAllergens: [String] {
+        allergens.filter { !Allergen.isCommon($0) }
+    }
+
+    func isAllergenSelected(_ name: String) -> Bool {
+        allergens.contains { $0.caseInsensitiveCompare(name) == .orderedSame }
+    }
+
+    func toggleAllergen(_ name: String) {
+        if isAllergenSelected(name) {
+            allergens.removeAll { $0.caseInsensitiveCompare(name) == .orderedSame }
+        } else {
+            allergens.append(name)
+        }
+        saveAllergens()
+    }
+
+    /// Adds a typed-in allergen. Returns false if it's empty or already listed.
+    @discardableResult
+    func addCustomAllergen(_ raw: String) -> Bool {
+        let name = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty, !isAllergenSelected(name) else { return false }
+        allergens.append(name)
+        saveAllergens()
+        return true
+    }
+
+    func removeAllergens(_ names: [String]) {
+        allergens.removeAll { a in names.contains { $0.caseInsensitiveCompare(a) == .orderedSame } }
+        saveAllergens()
+    }
+
+    func clearAllergens() {
+        allergens.removeAll()
+        saveAllergens()
+    }
+
+    private func saveAllergens() {
+        UserDefaults.standard.set(allergens, forKey: Self.allergensKey)
     }
 
     // MARK: - Collections

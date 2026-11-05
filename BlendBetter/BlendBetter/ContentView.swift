@@ -23,13 +23,13 @@ struct ContentView: View {
 
             CollectionsView()
                 .tabItem {
-                    Label("Collections", systemImage: "star.fill")
+                    Label("Collections", systemImage: "heart.fill")
                 }
                 .tag(1)
 
             UsersView()
                 .tabItem {
-                    Label("Users", systemImage: "person.fill")
+                    Label("Allergies", systemImage: "person.fill")
                 }
                 .tag(2)
 

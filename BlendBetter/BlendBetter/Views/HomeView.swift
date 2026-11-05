@@ -9,7 +9,9 @@ struct HomeView: View {
     @State private var limitHintToken = 0
 
     private var isGenerateDisabled: Bool {
-        appViewModel.finalFruitList.isEmpty || appViewModel.isSelectionLocked
+        appViewModel.finalFruitList.isEmpty
+            || appViewModel.isSelectionLocked
+            || !appViewModel.conflictingFruits.isEmpty
     }
 
     private var selectionSummary: String {
@@ -91,6 +93,27 @@ struct HomeView: View {
                                     .multilineTextAlignment(.center)
                                     .padding(.horizontal)
                                     .transition(.opacity)
+                            }
+
+                            if !appViewModel.conflictingFruits.isEmpty {
+                                Label("\(appViewModel.conflictingFruits.joined(separator: ", ")) is on your allergy list. Remove it to generate.", systemImage: "exclamationmark.triangle.fill")
+                                    .font(.footnote)
+                                    .foregroundStyle(.red)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                            }
+
+                            if !appViewModel.allergens.isEmpty {
+                                Button {
+                                    appViewModel.selectedTab = 2
+                                } label: {
+                                    Label("Avoiding: \(appViewModel.allergens.joined(separator: ", "))", systemImage: "exclamationmark.shield")
+                                        .font(.footnote)
+                                        .foregroundStyle(.secondary)
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal)
+                                }
+                                .buttonStyle(.plain)
                             }
 
                             if let detectedFruit = appViewModel.detectedFruit {

@@ -12,19 +12,24 @@ nonisolated struct RecipeHistoryItem: Identifiable, Codable, Hashable {
     let recipeOptionId: String
     let fruits: [String]
     let text: String
+    /// Allergens excluded when this recipe was generated.
+    /// Optional so history saved before this field existed still decodes.
+    let allergens: [String]?
 
     init(
         id: UUID = UUID(),
         createdAt: Date = Date(),
         recipeOptionId: String,
         fruits: [String],
-        text: String
+        text: String,
+        allergens: [String]? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
         self.recipeOptionId = recipeOptionId
         self.fruits = fruits
         self.text = text
+        self.allergens = allergens
     }
 
     /// The recipe type this item was generated with (falls back to the first option).

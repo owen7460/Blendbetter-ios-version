@@ -270,6 +270,12 @@ struct HistoryDetailView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
+            if let allergens = item.allergens, !allergens.isEmpty {
+                Label("Avoided: \(allergens.joined(separator: ", "))", systemImage: "exclamationmark.shield")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             HStack(spacing: 8) {
                 ForEach(item.fruits, id: \.self) { name in
                     HStack(spacing: 6) {
