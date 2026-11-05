@@ -1,8 +1,3 @@
-//
-//  CameraView.swift
-//  BlendBetter
-//
-//  Created by Owen on 4/7/26.
 import SwiftUI
 
 struct CameraView: View {
@@ -81,6 +76,8 @@ struct CameraView: View {
                                     appViewModel.selectedTab = 0
                                 }
                             }
+                        } else if appViewModel.isLoading {
+                            detectedText = "Please wait for the current recipe"
                         } else {
                             detectedText = "Maximum 3 fruits allowed"
                         }

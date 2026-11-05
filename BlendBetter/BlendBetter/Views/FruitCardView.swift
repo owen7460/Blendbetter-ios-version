@@ -1,10 +1,3 @@
-//
-//  FruitCardView.swift
-//  BlendBetter
-//
-//  Created by Owen on 4/7/26.
-//
-
 import SwiftUI
 
 struct FruitCardView: View {
@@ -14,30 +7,32 @@ struct FruitCardView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
-                .fill(
-                    LinearGradient(
-                        colors: isSelected
-                        ? [Color.green.opacity(0.8), Color.green.opacity(0.3)]
-                        : [Color(.systemGray6)]
-                        ,
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(Color.clear)
                 .frame(height: 100)
+                .background(
+                    Group {
+                        if isSelected {
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            Color.green.opacity(0.8),
+                                            Color.green.opacity(0.9)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .blur(radius: 20)
+                        }
+                    }
+                )
 
-            VStack(spacing: 8) {
-                Image(fruit.imageName)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 68, height: 68)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-
-                Text(fruit.name)
-                    .font(.caption)
-                    .fontWeight(.medium)
-            }
-            .padding(8)
+            Image(fruit.imageName)
+                .resizable()
+                .scaledToFill()
+                .frame(width: 68, height: 68)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
         }
     }
 }

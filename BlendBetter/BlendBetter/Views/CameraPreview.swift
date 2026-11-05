@@ -1,10 +1,3 @@
-//
-//  CameraPreview.swift
-//  BlendBetter
-//
-//  Created by Owen on 4/7/26.
-//
-
 import SwiftUI
 import AVFoundation
 

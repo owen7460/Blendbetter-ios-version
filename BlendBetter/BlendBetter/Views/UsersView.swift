@@ -1,16 +1,9 @@
-//
-//  UsersView.swift
-//  BlendBetter
-//
-//  Created by Owen on 4/7/26.
-//
-
 import SwiftUI
 
 struct UsersView: View {
     var body: some View {
         NavigationStack {
-            Text("Users page")
+            Text("Users function will be available soon")
                 .navigationTitle("Users")
         }
     }

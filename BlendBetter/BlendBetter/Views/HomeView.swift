@@ -1,15 +1,14 @@
-//
-//  HomeView.swift
-//  BlendBetter
-//
-//  Created by Owen on 4/7/26.
-//
-
 import SwiftUI
+import MarkdownUI
 
 struct HomeView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @State private var showRecipePicker = false
+    @State private var showHistory = false
+
+    private var isGenerateDisabled: Bool {
+        appViewModel.finalFruitList.isEmpty || appViewModel.isLoading
+    }
 
     private let columns = [
         GridItem(.flexible()),
@@ -19,106 +18,164 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    VStack(spacing: 8) {
-                        Text("\(appViewModel.selectedRecipeOption.emoji) \(appViewModel.selectedRecipeOption.subtitle)")
-                            .font(.headline)
-                            .multilineTextAlignment(.center)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(spacing: 20) {
+                        VStack(spacing: 8) {
+                            Text("\(appViewModel.selectedRecipeOption.emoji) \(appViewModel.selectedRecipeOption.subtitle)")
+                                .font(.headline)
+                                .multilineTextAlignment(.center)
 
-                        Text("Please choose 1-3 kinds of fruits, you can check what you have in your fridge")
-                            .font(.subheadline)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.horizontal)
+                            Text("Please choose 1-3 kinds of fruits, you can check what you have in your fridge")
+                                .font(.subheadline)
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal)
 
-                    LazyVGrid(columns: columns, spacing: 16) {
-                        ForEach(Fruit.all) { fruit in
-                            FruitCardView(
-                                fruit: fruit,
-                                isSelected: appViewModel.selectedFruits.contains(fruit.name)
-                            )
-                            .onTapGesture {
-                                appViewModel.toggleFruit(fruit.name)
+                        LazyVGrid(columns: columns, spacing: 16) {
+                            ForEach(Fruit.all) { fruit in
+                                FruitCardView(
+                                    fruit: fruit,
+                                    isSelected: appViewModel.selectedFruits.contains(fruit.name)
+                                )
+                                .onTapGesture {
+                                    appViewModel.toggleFruit(fruit.name)
+                                }
                             }
                         }
-                    }
-                    .padding(.horizontal)
+                        .padding(.horizontal)
+                        .allowsHitTesting(!appViewModel.isLoading)
+                        .opacity(appViewModel.isLoading ? 0.5 : 1)
 
-                    VStack(spacing: 8) {
-                        Text("You selected: \(appViewModel.finalFruitList.joined(separator: ", "))")
-                            .font(.subheadline)
+                        VStack( spacing: 8) {
+                            Text("You selected: \(appViewModel.finalFruitList.joined(separator: ", "))")
+                                .font(.subheadline)
 
-                        if let detectedFruit = appViewModel.detectedFruit {
-                            Text("Camera detected: \(detectedFruit)")
-                                .font(.footnote)
-                                .foregroundStyle(.green)
+                            if let detectedFruit = appViewModel.detectedFruit {
+                                Text("Camera detected: \(detectedFruit)")
+                                    .font(.footnote)
+                                    .foregroundStyle(.green)
+                            }
                         }
-                    }
 
-                    Button {
-                        Task {
-                            await appViewModel.generateRecipe()
-                        }
-                    } label: {
-                        Text("Generate")
-                            .fontWeight(.bold)
+                        Button {
+                            Task {
+                                await appViewModel.generateRecipe()
+                            }
+                        } label: {
+                            HStack(spacing: 8) {
+                                if appViewModel.isLoading {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                                Text(appViewModel.isLoading ? "Generating…" : "Generate")
+                                    .fontWeight(.bold)
+                            }
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color(red: 0.48, green: 0.78, blue: 0.51))
                             .foregroundColor(.white)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
-                    .padding(.horizontal)
-                    
-                    if appViewModel.isLoading {
-                        Text("Generating recipe...")
-                            .foregroundStyle(.green)
-                            .font(.subheadline)
-                    }
-
-                    if let errorMessage = appViewModel.errorMessage {
-                        Text(errorMessage)
-                            .foregroundStyle(.red)
-                            .font(.footnote)
-                            .padding(.horizontal)
-                    }
-
-                    if !appViewModel.generatedText.isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Result")
-                                .font(.headline)
-
-                            ScrollView {
-                                Text(appViewModel.generatedText)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding()
-                            }
-                            .frame(minHeight: 160)
-                            .background(Color(.systemGray6))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-
-                            Button("Clear & Start Over") {
-                                appViewModel.clearAll()
-                            }
-                            .foregroundColor(.green)
                         }
                         .padding(.horizontal)
+                        .disabled(isGenerateDisabled)
+                        .opacity(isGenerateDisabled ? 0.5 : 1)
+                        .animation(.easeInOut(duration: 0.2), value: appViewModel.isLoading)
+
+                        // Show the animation until the first words of the recipe arrive.
+                        if appViewModel.isLoading && appViewModel.generatedText.isEmpty {
+                            BlendingLoadingView(
+                                fruits: appViewModel.finalFruitList,
+                                fallbackEmoji: appViewModel.selectedRecipeOption.emoji
+                            )
+                            .padding(.horizontal)
+                            .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                        }
+
+                        if let errorMessage = appViewModel.errorMessage {
+                            Text(errorMessage)
+                                .foregroundStyle(.red)
+                                .font(.footnote)
+                                .padding(.horizontal)
+                        }
+
+                        if !appViewModel.generatedText.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Result")
+                                    .font(.headline)
+
+                                Group {
+                                    Markdown(appViewModel.generatedText)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                        .padding()
+                                }
+                                .background(Color(.systemGray6))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+
+                                if appViewModel.isFinished {
+                                    Button {
+                                        appViewModel.clearAll()
+                                    } label: {
+                                        Text("Clear & Start Over")
+                                            .fontWeight(.bold)
+                                            .frame(maxWidth: .infinity)
+                                            .padding()
+                                            .background(Color(red: 0.48, green: 0.78, blue: 0.51))
+                                            .foregroundColor(.white)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    }
+                                    .transition(.opacity)
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+
+                        Color.clear
+                            .frame(height: 10)
+                            .id("bottomAnchor")
+                    }
+                    .padding(.vertical)
+                }
+                .animation(.easeInOut(duration: 0.25), value: appViewModel.isLoading)
+                .animation(.easeInOut(duration: 0.25), value: appViewModel.generatedText.isEmpty)
+                .onChange(of: appViewModel.generatedText) { _, _ in
+                    proxy.scrollTo("bottomAnchor", anchor: .bottom)
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+
+                ToolbarItem(placement: .principal) {
+                    Text("BlendBetter")
+                        .font(.title)
+                        .fontWeight(.semibold)
+                }
+
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        showHistory = true
+                    } label: {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .font(.system(size: 18, weight: .medium))
                     }
                 }
-                .padding(.vertical)
-            }
-            .navigationTitle("BlendBetter")
-            .toolbar {
+
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Type") {
+                    Button {
                         showRecipePicker = true
+                    } label: {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.system(size: 18, weight: .medium))
                     }
+                    .disabled(appViewModel.isLoading)
                 }
             }
             .sheet(isPresented: $showRecipePicker) {
                 RecipeTypePickerView()
+            }
+            .sheet(isPresented: $showHistory) {
+                HistoryView()
             }
         }
     }

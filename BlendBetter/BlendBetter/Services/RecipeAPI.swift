@@ -69,11 +69,11 @@ struct RecipeAPI {
 
                     if type == "text-delta",
                        let delta = json["delta"] as? String {
-                        await onDelta(delta)
+                        onDelta(delta)
                     }
 
                     if type == "finish" {
-                        await onFinish()
+                        onFinish()
                         break
                     }
                 }

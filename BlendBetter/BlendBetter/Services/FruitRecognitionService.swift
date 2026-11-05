@@ -1,9 +1,3 @@
-//
-//  FruitRecognitionService.swift
-//  BlendBetter
-//
-//  Created by Owen on 4/7/26.
-//
 import Foundation
 import UIKit
 import Vision
@@ -45,7 +39,18 @@ final class FruitRecognitionService {
                 "peach": "Peach",
                 "kiwi": "Kiwi",
                 "strawberry": "Strawberry",
-                "watermelon": "Watermelon"
+                "watermelon": "Watermelon",
+                "pear": "Pear",
+                "grape": "Grape",
+                "blueberry": "Blueberry",
+                "lemon": "Lemon",
+                "lime": "Lime",
+                "cherry": "Cherry",
+                "coconut": "Coconut",
+                "papaya": "Papaya",
+                "grapefruit": "Grapefruit",
+                "pomegranate": "Pomegranate",
+                "cantaloupe": "Cantaloupe"
             ]
 
             for result in results.prefix(10) {
