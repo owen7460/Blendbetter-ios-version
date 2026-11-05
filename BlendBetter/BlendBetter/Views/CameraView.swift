@@ -90,8 +90,6 @@ struct CameraView: View {
                         let added = appViewModel.addFruit(fruit)
                         
                         if added || appViewModel.selectedFruits.contains(fruit) {
-                            // Only remember it when it actually made it into the selection.
-                            appViewModel.detectedFruit = fruit
                             detectedText = "Detected: \(fruit)"
                             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                             

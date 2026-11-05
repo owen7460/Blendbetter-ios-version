@@ -40,8 +40,10 @@ struct CollectionsView: View {
                         }
                     }
                     .listStyle(.insetGrouped)
+                    .scrollContentBackground(.hidden)
                 }
             }
+            .background(Color.appBackground.ignoresSafeArea())
             .searchable(text: $searchText, prompt: "Search fruits or recipes")
             .navigationTitle("Collections")
             .navigationDestination(for: RecipeHistoryItem.self) { item in

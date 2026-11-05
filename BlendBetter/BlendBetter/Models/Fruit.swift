@@ -10,16 +10,20 @@ import Foundation
 nonisolated struct Fruit: Identifiable, Hashable {
     let id: Int
     let name: String
-    /// Asset name. Only the featured fruits on the Blend grid have one.
+    /// Asset name in Assets.xcassets, e.g. "Dragon Fruit" -> "dragon_fruit".
+    /// Optional so callers can still fall back to the initial tile if an image is ever missing.
     let imageName: String?
+    /// Shown as a picture card on the Blend grid (the rest are found via search).
+    let isFeatured: Bool
     /// Other names used for search and camera recognition.
     let aliases: [String]
 
-    init(id: Int, name: String, imageName: String? = nil, aliases: [String] = []) {
+    init(id: Int, name: String, aliases: [String] = [], isFeatured: Bool = false) {
         self.id = id
         self.name = name
-        self.imageName = imageName
+        self.imageName = name.lowercased().replacingOccurrences(of: " ", with: "_")
         self.aliases = aliases
+        self.isFeatured = isFeatured
     }
 
     /// Case-insensitive match on the name or any alias.
@@ -35,20 +39,20 @@ nonisolated struct Fruit: Identifiable, Hashable {
 
     /// The fruits shown as picture cards on the Blend page.
     static var featured: [Fruit] {
-        all.filter { $0.imageName != nil }
+        all.filter(\.isFeatured)
     }
 
     static let all: [Fruit] = [
-        // Featured (with images)
-        Fruit(id: 1, name: "Apple", imageName: "apple"),
-        Fruit(id: 2, name: "Banana", imageName: "banana"),
-        Fruit(id: 3, name: "Orange", imageName: "orange"),
-        Fruit(id: 4, name: "Pineapple", imageName: "pineapple", aliases: ["Ananas"]),
-        Fruit(id: 5, name: "Strawberry", imageName: "strawberry"),
-        Fruit(id: 6, name: "Watermelon", imageName: "watermelon"),
-        Fruit(id: 7, name: "Kiwi", imageName: "kiwi", aliases: ["Kiwifruit"]),
-        Fruit(id: 8, name: "Mango", imageName: "mango"),
-        Fruit(id: 9, name: "Peach", imageName: "peach"),
+        // Featured on the Blend grid
+        Fruit(id: 1, name: "Apple", isFeatured: true),
+        Fruit(id: 2, name: "Banana", isFeatured: true),
+        Fruit(id: 3, name: "Orange", isFeatured: true),
+        Fruit(id: 4, name: "Pineapple", aliases: ["Ananas"], isFeatured: true),
+        Fruit(id: 5, name: "Strawberry", isFeatured: true),
+        Fruit(id: 6, name: "Watermelon", isFeatured: true),
+        Fruit(id: 7, name: "Kiwi", aliases: ["Kiwifruit"], isFeatured: true),
+        Fruit(id: 8, name: "Mango", isFeatured: true),
+        Fruit(id: 9, name: "Peach", isFeatured: true),
 
         // Pome & stone fruits
         Fruit(id: 10, name: "Pear"),
@@ -111,6 +115,58 @@ nonisolated struct Fruit: Identifiable, Hashable {
         Fruit(id: 57, name: "Pomegranate"),
         Fruit(id: 58, name: "Persimmon"),
         Fruit(id: 59, name: "Fig"),
-        Fruit(id: 60, name: "Date", aliases: ["Medjool"])
+        Fruit(id: 60, name: "Date", aliases: ["Medjool"]),
+
+        // More berries
+        Fruit(id: 61, name: "Boysenberry"),
+        Fruit(id: 62, name: "Lingonberry", aliases: ["Cowberry"]),
+        Fruit(id: 63, name: "Huckleberry"),
+        Fruit(id: 64, name: "Golden Berry", aliases: ["Physalis", "Cape Gooseberry", "Inca Berry"]),
+        Fruit(id: 65, name: "Sea Buckthorn"),
+        Fruit(id: 66, name: "Aronia", aliases: ["Chokeberry"]),
+        Fruit(id: 67, name: "Kiwiberry", aliases: ["Hardy Kiwi", "Baby Kiwi"]),
+        Fruit(id: 68, name: "Muscadine"),
+        Fruit(id: 69, name: "Chinese Bayberry", aliases: ["Yangmei", "Waxberry", "Red Bayberry"]),
+
+        // More stone & pome fruits
+        Fruit(id: 70, name: "Sour Cherry", aliases: ["Morello Cherry", "Tart Cherry"]),
+        Fruit(id: 71, name: "Pluot"),
+        Fruit(id: 72, name: "Jujube", aliases: ["Red Date", "Chinese Date"]),
+        Fruit(id: 73, name: "Hawthorn", aliases: ["Haw", "Hawberry"]),
+
+        // More melons
+        Fruit(id: 74, name: "Hami Melon"),
+        Fruit(id: 75, name: "Galia Melon"),
+        Fruit(id: 76, name: "Korean Melon", aliases: ["Chamoe"]),
+        Fruit(id: 77, name: "Horned Melon", aliases: ["Kiwano"]),
+
+        // More citrus
+        Fruit(id: 78, name: "Tangelo", aliases: ["Ugli Fruit", "Minneola"]),
+        Fruit(id: 79, name: "Satsuma"),
+        Fruit(id: 80, name: "Calamansi", aliases: ["Calamondin"]),
+        Fruit(id: 81, name: "Key Lime"),
+        Fruit(id: 82, name: "Meyer Lemon"),
+        Fruit(id: 83, name: "Bergamot"),
+        Fruit(id: 84, name: "Finger Lime"),
+        Fruit(id: 85, name: "Citron", aliases: ["Etrog"]),
+
+        // More tropical
+        Fruit(id: 86, name: "Cherimoya"),
+        Fruit(id: 87, name: "Sugar Apple", aliases: ["Custard Apple", "Sweetsop"]),
+        Fruit(id: 88, name: "Sapodilla", aliases: ["Chikoo"]),
+        Fruit(id: 89, name: "Mamey Sapote", aliases: ["Mamey"]),
+        Fruit(id: 90, name: "Salak", aliases: ["Snake Fruit"]),
+        Fruit(id: 91, name: "Wax Apple", aliases: ["Java Apple", "Rose Apple"]),
+        Fruit(id: 92, name: "Langsat", aliases: ["Lanzones", "Duku"]),
+        Fruit(id: 93, name: "Jabuticaba"),
+        Fruit(id: 94, name: "Acerola", aliases: ["Barbados Cherry"]),
+        Fruit(id: 95, name: "Pitanga", aliases: ["Surinam Cherry"]),
+        Fruit(id: 96, name: "Feijoa", aliases: ["Pineapple Guava"]),
+        Fruit(id: 97, name: "Lucuma"),
+        Fruit(id: 98, name: "Tamarind"),
+
+        // Others
+        Fruit(id: 99, name: "Prickly Pear", aliases: ["Cactus Pear"]),
+        Fruit(id: 100, name: "Monk Fruit", aliases: ["Luo Han Guo"])
     ]
 }

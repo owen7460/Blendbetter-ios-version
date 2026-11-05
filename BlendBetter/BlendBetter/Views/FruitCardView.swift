@@ -7,48 +7,56 @@ struct FruitCardView: View {
     var isDimmed: Bool = false
 
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.clear)
-                .frame(height: 100)
-                .background(
-                    Group {
-                        if isSelected {
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [
-                                            Color.green.opacity(0.8),
-                                            Color.green.opacity(0.9)
-                                        ],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .blur(radius: 20)
-                        }
+        VStack(spacing: 8) {
+            ZStack(alignment: .topTrailing) {
+                Group {
+                    if let imageName = fruit.imageName {
+                        Image(imageName)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        FruitInitialView(name: fruit.name)
                     }
-                )
+                }
+                .frame(width: 72, height: 72)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
 
-            Group {
-                if let imageName = fruit.imageName {
-                    Image(imageName)
-                        .resizable()
-                        .scaledToFill()
-                } else {
-                    FruitInitialView(name: fruit.name)
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.title3)
+                        .symbolRenderingMode(.palette)
+                        .foregroundStyle(Color.white, Color.brandGreen)
+                        .background(Circle().fill(Color.white).padding(3))
+                        .offset(x: 8, y: -8)
+                        .transition(.scale.combined(with: .opacity))
                 }
             }
-            .frame(width: 68, height: 68)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+
+            Text(fruit.name)
+                .font(.footnote.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .foregroundStyle(isSelected ? Color.brandGreenDeep : Color.primary)
         }
+        .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(isSelected ? Color.brandGreen.opacity(0.16) : Color.cardBackground)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .stroke(isSelected ? Color.brandGreen : Color.clear, lineWidth: 2)
+        )
+        .shadow(color: .black.opacity(isSelected ? 0 : 0.05), radius: 8, y: 3)
         .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(fruit.name)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint(isDimmed ? "Limit reached. Remove a fruit to choose this one." : "")
-        .opacity(isDimmed ? 0.35 : 1)
-        .saturation(isDimmed ? 0.3 : 1)
+        .opacity(isDimmed ? 0.6 : 1)
+        .saturation(isDimmed ? 0.6 : 1)
+        .animation(.spring(duration: 0.3), value: isSelected)
         .animation(.easeInOut(duration: 0.2), value: isDimmed)
     }
 }

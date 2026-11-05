@@ -39,6 +39,7 @@ struct ContentView: View {
                 }
                 .tag(3)
         }
-        .tint(Color(red: 0.48, green: 0.78, blue: 0.51))
+        .tint(Color.brandGreen)
+        .fontDesign(.rounded)
     }
 }

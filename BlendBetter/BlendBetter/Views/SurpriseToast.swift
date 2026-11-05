@@ -9,7 +9,7 @@ import SwiftUI
 struct SurpriseToast: View {
     let message: String
 
-    private let green = Color(red: 0.48, green: 0.78, blue: 0.51)
+    private let green = Color.brandGreen
 
     var body: some View {
         HStack(spacing: 10) {

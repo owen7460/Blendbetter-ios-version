@@ -11,50 +11,43 @@ struct RecipeOption: Identifiable, Hashable {
     let emoji: String
     let label: String
     let prefix: String
-    let subtitle: String
 
     static let options: [RecipeOption] = [
         RecipeOption(
             id: "smoothie",
             emoji: "🥤",
             label: "Smoothie",
-            prefix: "Please generate a smoothie recipe using",
-            subtitle: "Let's choose your fruits for smoothie."
+            prefix: "Please generate a smoothie recipe using"
         ),
         RecipeOption(
             id: "cocktail",
             emoji: "🍹",
             label: "Cocktail",
-            prefix: "Please generate a cocktail recipe using",
-            subtitle: "Let's choose your fruits for cocktail."
+            prefix: "Please generate a cocktail recipe using"
         ),
         RecipeOption(
             id: "bubbleTea",
             emoji: "🧋",
             label: "Bubble tea",
-            prefix: "Please generate a bubble tea recipe using",
-            subtitle: "Let's choose your fruits for bubble tea."
+            prefix: "Please generate a bubble tea recipe using"
         ),
         RecipeOption(
             id: "slushie",
             emoji: "🍧",
             label: "Slushie",
-            prefix: "Please generate a slushie recipe using",
-            subtitle: "Let's choose your fruits for slushie."
+            prefix: "Please generate a slushie recipe using"
         ),
         RecipeOption(
             id: "icedBlendedDrink",
             emoji: "🧊",
             label: "Iced blended drink",
-            prefix: "Please generate an iced blended drink recipe using",
-            subtitle: "Let's choose your fruits for iced blended drink."
+            prefix: "Please generate an iced blended drink recipe using"
         ),
         RecipeOption(
             id: "yogurtDrink",
             emoji: "🥛",
             label: "Yogurt drink",
-            prefix: "Please generate a yogurt drink recipe using",
-            subtitle: "Let's choose your fruits for yogurt drink."
+            prefix: "Please generate a yogurt drink recipe using"
         )
     ]
 }

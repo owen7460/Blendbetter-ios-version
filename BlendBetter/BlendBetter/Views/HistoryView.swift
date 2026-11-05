@@ -6,7 +6,7 @@
 import SwiftUI
 import MarkdownUI
 
-private let brandGreen = Color(red: 0.48, green: 0.78, blue: 0.51)
+private let brandGreen = Color.brandGreen
 
 // MARK: - List
 
@@ -71,8 +71,10 @@ struct HistoryView: View {
                         }
                     }
                     .listStyle(.insetGrouped)
+                    .scrollContentBackground(.hidden)
                 }
             }
+            .background(Color.appBackground.ignoresSafeArea())
             .searchable(text: $searchText, prompt: "Search fruits or recipes")
             .navigationTitle("History")
             .navigationBarTitleDisplayMode(.inline)
@@ -183,29 +185,25 @@ struct HistoryDetailView: View {
                 header
 
                 Markdown(item.text)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .markdownTheme(.blendBetter)
                     .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .card(padding: 20)
+
+                AIDisclaimer(allergens: item.allergens ?? [])
 
                 Button {
                     appViewModel.blendAgain(item)
                     onBlendAgain()
                 } label: {
                     Label("Blend Again", systemImage: "arrow.clockwise")
-                        .fontWeight(.bold)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(brandGreen)
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
+                .buttonStyle(PrimaryButtonStyle())
                 .disabled(appViewModel.isLoading)
-                .opacity(appViewModel.isLoading ? 0.5 : 1)
             }
             .padding()
         }
+        .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(item.recipeOption.label)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

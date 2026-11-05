@@ -3,7 +3,6 @@ import Combine
 
 final class AppViewModel: ObservableObject {
     @Published var selectedFruits: [String] = []
-    @Published var detectedFruit: String? = nil
     @Published var selectedRecipeOption: RecipeOption = RecipeOption.options[0]
 
     @Published var generatedText: String = ""
@@ -63,9 +62,6 @@ final class AppViewModel: ObservableObject {
         guard !isSelectionLocked else { return }
         if selectedFruits.contains(fruit) {
             selectedFruits.removeAll { $0 == fruit }
-            if detectedFruit == fruit {
-                detectedFruit = nil
-            }
         } else {
             _ = addFruit(fruit)
         }
@@ -73,7 +69,6 @@ final class AppViewModel: ObservableObject {
 
     func clearAll() {
         selectedFruits = []
-        detectedFruit = nil
         pendingText = ""
         generatedText = ""
         errorMessage = nil
@@ -276,27 +271,39 @@ final class AppViewModel: ObservableObject {
     // MARK: - Surprise me
 
     /// Replaces the selection with 2–3 random fruits that aren't on the allergy list.
-    /// Returns false if there aren't enough safe fruits to pick from.
+    /// At least one comes from the picture grid, so the user sees a card light up;
+    /// the rest can be any fruit. Returns false if there aren't enough safe fruits.
     @discardableResult
     func surpriseMe() -> Bool {
         guard !isSelectionLocked else { return false }
 
-        let safeFruits = Fruit.all
-            .map(\.name)
-            .filter { fruit in !allergens.contains { Allergen.fruit(fruit, conflictsWith: $0) } }
+        func isSafe(_ fruit: String) -> Bool {
+            !allergens.contains { Allergen.fruit(fruit, conflictsWith: $0) }
+        }
+        let safeFruits = Fruit.all.map(\.name).filter(isSafe)
+        let safeFeatured = Fruit.featured.map(\.name).filter(isSafe)
         guard safeFruits.count >= 2 else { return false }
 
         let count = min(Int.random(in: 2...Self.maxFruits), safeFruits.count)
-        var pick = Array(safeFruits.shuffled().prefix(count))
+
+        func randomPick() -> [String] {
+            // No safe grid fruit (e.g. allergic to all of them): pick from everything.
+            guard let anchor = safeFeatured.randomElement() else {
+                return Array(safeFruits.shuffled().prefix(count))
+            }
+            let others = safeFruits.filter { $0 != anchor }.shuffled().prefix(count - 1)
+            return ([anchor] + others).shuffled()
+        }
+
+        var pick = randomPick()
         // Avoid handing back exactly the same set twice in a row.
         var attempts = 0
         while Set(pick) == Set(selectedFruits) && attempts < 5 {
-            pick = Array(safeFruits.shuffled().prefix(count))
+            pick = randomPick()
             attempts += 1
         }
 
         selectedFruits = pick
-        detectedFruit = nil
         errorMessage = nil
         return true
     }

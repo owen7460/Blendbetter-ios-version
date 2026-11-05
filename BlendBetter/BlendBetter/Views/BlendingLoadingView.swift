@@ -43,8 +43,8 @@ struct BlendingLoadingView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .background(Color.cardBackground, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Generating recipe")
     }

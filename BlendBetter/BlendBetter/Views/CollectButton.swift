@@ -25,14 +25,9 @@ struct CollectButton: View {
                 .frame(width: 56)
                 .frame(maxHeight: .infinity)
                 .background(isCollected ? Color.collectYellow : Color.collectYellow.opacity(0.18))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .animation(.easeInOut(duration: 0.2), value: isCollected)
         }
         .accessibilityLabel(isCollected ? "Remove from Collections" : "Add to Collections")
     }
-}
-
-extension Color {
-    /// Warm yellow used for everything "collected" (favorite button, detail toolbar heart).
-    static let collectYellow = Color(red: 1.0, green: 0.76, blue: 0.0)
 }

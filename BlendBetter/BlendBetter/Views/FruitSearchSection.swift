@@ -5,10 +5,10 @@
 
 import SwiftUI
 
-private let accentGreen = Color(red: 0.48, green: 0.78, blue: 0.51)
+private let accentGreen = Color.brandGreen
 
-/// Search box for the fruits that aren't on the picture grid,
-/// plus removable chips for the ones already picked from search.
+/// Search box for the fruits that aren't on the picture grid.
+/// Picked fruits show up in the selection tray at the bottom of the Blend page.
 struct FruitSearchSection: View {
     @EnvironmentObject var appViewModel: AppViewModel
     /// Same handler the grid uses, so the 3-fruit limit hint behaves identically.
@@ -28,15 +28,11 @@ struct FruitSearchSection: View {
         Array(Fruit.all.filter { $0.matches(trimmedQuery) }.prefix(Self.maxResults))
     }
 
-    /// Selected fruits that don't have a card on the grid.
-    private var extraSelected: [String] {
-        appViewModel.selectedFruits.filter { Fruit.named($0)?.imageName == nil }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text("More fruits")
                 .font(.headline)
+                .padding(.leading, 4)
 
             searchField
 
@@ -56,18 +52,7 @@ struct FruitSearchSection: View {
                             }
                         }
                     }
-                    .background(Color(.systemGray6))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-            }
-
-            if !extraSelected.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(extraSelected, id: \.self) { name in
-                            chip(name)
-                        }
-                    }
+                    .card(padding: 0, cornerRadius: 18)
                 }
             }
         }
@@ -101,9 +86,10 @@ struct FruitSearchSection: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(10)
-        .background(Color(.systemGray6))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(Color.cardBackground, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .shadow(color: .black.opacity(0.05), radius: 8, y: 3)
     }
 
     private func resultRow(_ fruit: Fruit) -> some View {
@@ -131,31 +117,6 @@ struct FruitSearchSection: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-    }
-
-    private func chip(_ name: String) -> some View {
-        HStack(spacing: 6) {
-            if let fruit = Fruit.named(name) {
-                FruitThumbnail(fruit: fruit, size: 20)
-            }
-            Text(name)
-                .font(.caption)
-                .fontWeight(.medium)
-            Button {
-                onToggle(name)
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.caption2.weight(.bold))
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Remove \(name)")
-        }
-        .padding(.leading, 6)
-        .padding(.trailing, 10)
-        .padding(.vertical, 6)
-        .background(accentGreen.opacity(0.15))
-        .clipShape(Capsule())
     }
 }
 
