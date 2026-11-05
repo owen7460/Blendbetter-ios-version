@@ -241,8 +241,8 @@ struct HistoryDetailView: View {
             HStack(spacing: 8) {
                 ForEach(item.fruits, id: \.self) { name in
                     HStack(spacing: 6) {
-                        if let fruit = Fruit.all.first(where: { $0.name == name }) {
-                            Image(fruit.imageName)
+                        if let imageName = Fruit.named(name)?.imageName {
+                            Image(imageName)
                                 .resizable()
                                 .scaledToFill()
                                 .frame(width: 22, height: 22)

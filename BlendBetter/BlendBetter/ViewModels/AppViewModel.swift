@@ -14,6 +14,12 @@ final class AppViewModel: ObservableObject {
     
     @Published var isFinished: Bool = false
 
+    /// True while generating and after a recipe is done. The selection stays
+    /// locked until the user taps "Clear & Start Over".
+    var isSelectionLocked: Bool {
+        isLoading || isFinished
+    }
+
     /// Saved recipes, newest first.
     @Published private(set) var history: [RecipeHistoryItem] = []
 
@@ -21,12 +27,15 @@ final class AppViewModel: ObservableObject {
         history = HistoryStore.load()
     }
     
+    /// Maximum number of fruits in one recipe.
+    static let maxFruits = 3
+
     func canAddMoreFruit() -> Bool {
-        selectedFruits.count < 3
+        selectedFruits.count < Self.maxFruits
     }
 
     func addFruit(_ fruit: String) -> Bool {
-        guard !isLoading else { return false }
+        guard !isSelectionLocked else { return false }
         guard !selectedFruits.contains(fruit) else { return false }
         guard canAddMoreFruit() else { return false }
         selectedFruits.append(fruit)
@@ -34,7 +43,7 @@ final class AppViewModel: ObservableObject {
     }
 
     func toggleFruit(_ fruit: String) {
-        guard !isLoading else { return }
+        guard !isSelectionLocked else { return }
         if selectedFruits.contains(fruit) {
             selectedFruits.removeAll { $0 == fruit }
         } else {
@@ -67,7 +76,7 @@ final class AppViewModel: ObservableObject {
     }
 
     func generateRecipe() async {
-        guard !finalFruitList.isEmpty, !isLoading else { return }
+        guard !finalFruitList.isEmpty, !isSelectionLocked else { return }
 
         isLoading = true
         isFinished = false
@@ -146,7 +155,7 @@ final class AppViewModel: ObservableObject {
         guard !isLoading else { return }
         clearAll()
         selectedRecipeOption = item.recipeOption
-        selectedFruits = Array(item.fruits.prefix(3))
+        selectedFruits = Array(item.fruits.prefix(Self.maxFruits))
         selectedTab = 0
     }
 }

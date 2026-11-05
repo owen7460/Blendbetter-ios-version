@@ -5,12 +5,40 @@ import Vision
 final class FruitRecognitionService {
     static let shared = FruitRecognitionService()
 
+    /// (normalized keyword, fruit name), longest keywords first so that
+    /// e.g. "pineapple" wins over "apple" and "blood orange" over "orange".
+    private let keywords: [(key: String, fruit: String)] = {
+        Fruit.all
+            .flatMap { fruit in
+                ([fruit.name] + fruit.aliases).map { (key: FruitRecognitionService.normalize($0), fruit: fruit.name) }
+            }
+            .sorted { $0.key.count > $1.key.count }
+    }()
+
+    nonisolated private static func normalize(_ text: String) -> String {
+        text.lowercased()
+            .folding(options: .diacriticInsensitive, locale: nil)
+            .replacingOccurrences(of: "_", with: " ")
+            .replacingOccurrences(of: "-", with: " ")
+            .trimmingCharacters(in: .whitespaces)
+    }
+
+    /// Matches a Vision label against a keyword on word boundaries,
+    /// so "date" doesn't match inside unrelated labels.
+    nonisolated private static func label(_ label: String, matches key: String) -> Bool {
+        if label == key || label == key + "s" || label == key + "es" { return true }
+        let padded = " \(label) "
+        return padded.contains(" \(key) ") || padded.contains(" \(key)s ")
+    }
+
     func recognizeFruit(from image: UIImage, completion: @escaping (String?) -> Void) {
         guard let cgImage = image.cgImage else {
             print("Failed to get cgImage")
             completion(nil)
             return
         }
+
+        let keywords = self.keywords
 
         let request = VNClassifyImageRequest { request, error in
             if let error {
@@ -30,37 +58,11 @@ final class FruitRecognitionService {
                 print("-", result.identifier, result.confidence)
             }
 
-            let fruits: [String: String] = [
-                "banana": "Banana",
-                "apple": "Apple",
-                "orange": "Orange",
-                "pineapple": "Pineapple",
-                "mango": "Mango",
-                "peach": "Peach",
-                "kiwi": "Kiwi",
-                "strawberry": "Strawberry",
-                "watermelon": "Watermelon",
-                "pear": "Pear",
-                "grape": "Grape",
-                "blueberry": "Blueberry",
-                "lemon": "Lemon",
-                "lime": "Lime",
-                "cherry": "Cherry",
-                "coconut": "Coconut",
-                "papaya": "Papaya",
-                "grapefruit": "Grapefruit",
-                "pomegranate": "Pomegranate",
-                "cantaloupe": "Cantaloupe"
-            ]
-
             for result in results.prefix(10) {
-                let label = result.identifier.lowercased()
-
-                for (key, value) in fruits {
-                    if label.contains(key) {
-                        completion(value)
-                        return
-                    }
+                let label = FruitRecognitionService.normalize(result.identifier)
+                if let match = keywords.first(where: { FruitRecognitionService.label(label, matches: $0.key) }) {
+                    completion(match.fruit)
+                    return
                 }
             }
 

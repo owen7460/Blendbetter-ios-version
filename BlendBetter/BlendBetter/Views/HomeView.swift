@@ -5,9 +5,35 @@ struct HomeView: View {
     @EnvironmentObject var appViewModel: AppViewModel
     @State private var showRecipePicker = false
     @State private var showHistory = false
+    @State private var showLimitHint = false
+    @State private var limitHintToken = 0
 
     private var isGenerateDisabled: Bool {
-        appViewModel.finalFruitList.isEmpty || appViewModel.isLoading
+        appViewModel.finalFruitList.isEmpty || appViewModel.isSelectionLocked
+    }
+
+    private var selectionSummary: String {
+        let fruits = appViewModel.finalFruitList
+        guard !fruits.isEmpty else { return "No fruits selected (0/\(AppViewModel.maxFruits))" }
+        return "You selected: \(fruits.joined(separator: ", ")) (\(fruits.count)/\(AppViewModel.maxFruits))"
+    }
+
+    private func handleFruitTap(_ name: String) {
+        let isSelected = appViewModel.selectedFruits.contains(name)
+        if !isSelected && !appViewModel.canAddMoreFruit() {
+            UINotificationFeedbackGenerator().notificationOccurred(.warning)
+            limitHintToken += 1
+            let token = limitHintToken
+            withAnimation { showLimitHint = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                if token == limitHintToken {
+                    withAnimation { showLimitHint = false }
+                }
+            }
+            return
+        }
+        withAnimation { showLimitHint = false }
+        appViewModel.toggleFruit(name)
     }
 
     private let columns = [
@@ -34,23 +60,38 @@ struct HomeView: View {
                         .padding(.horizontal)
 
                         LazyVGrid(columns: columns, spacing: 16) {
-                            ForEach(Fruit.all) { fruit in
+                            ForEach(Fruit.featured) { fruit in
+                                let isSelected = appViewModel.selectedFruits.contains(fruit.name)
                                 FruitCardView(
                                     fruit: fruit,
-                                    isSelected: appViewModel.selectedFruits.contains(fruit.name)
+                                    isSelected: isSelected,
+                                    isDimmed: !isSelected && !appViewModel.canAddMoreFruit()
                                 )
                                 .onTapGesture {
-                                    appViewModel.toggleFruit(fruit.name)
+                                    handleFruitTap(fruit.name)
                                 }
                             }
                         }
                         .padding(.horizontal)
-                        .allowsHitTesting(!appViewModel.isLoading)
-                        .opacity(appViewModel.isLoading ? 0.5 : 1)
+                        .allowsHitTesting(!appViewModel.isSelectionLocked)
+                        .opacity(appViewModel.isSelectionLocked ? 0.5 : 1)
+
+                        FruitSearchSection(onToggle: { handleFruitTap($0) })
+                            .allowsHitTesting(!appViewModel.isSelectionLocked)
+                            .opacity(appViewModel.isSelectionLocked ? 0.5 : 1)
 
                         VStack( spacing: 8) {
-                            Text("You selected: \(appViewModel.finalFruitList.joined(separator: ", "))")
+                            Text(selectionSummary)
                                 .font(.subheadline)
+
+                            if showLimitHint {
+                                Label("You can choose up to \(AppViewModel.maxFruits) fruits. Tap a selected fruit to remove it.", systemImage: "exclamationmark.circle")
+                                    .font(.footnote)
+                                    .foregroundStyle(.orange)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+                                    .transition(.opacity)
+                            }
 
                             if let detectedFruit = appViewModel.detectedFruit {
                                 Text("Camera detected: \(detectedFruit)")
@@ -137,6 +178,7 @@ struct HomeView: View {
                     }
                     .padding(.vertical)
                 }
+                .scrollDismissesKeyboard(.interactively)
                 .animation(.easeInOut(duration: 0.25), value: appViewModel.isLoading)
                 .animation(.easeInOut(duration: 0.25), value: appViewModel.generatedText.isEmpty)
                 .onChange(of: appViewModel.generatedText) { _, _ in
@@ -168,7 +210,7 @@ struct HomeView: View {
                         Image(systemName: "slider.horizontal.3")
                             .font(.system(size: 18, weight: .medium))
                     }
-                    .disabled(appViewModel.isLoading)
+                    .disabled(appViewModel.isSelectionLocked)
                 }
             }
             .sheet(isPresented: $showRecipePicker) {

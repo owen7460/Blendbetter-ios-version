@@ -8,14 +8,8 @@ import SwiftUI
 /// Bouncing fruit animation shown while a recipe is being generated.
 struct BlendingLoadingView: View {
     let fruits: [String]
-    /// Shown when none of the fruits has an image (e.g. a camera-detected fruit).
+    /// Shown when there are no fruits to animate.
     let fallbackEmoji: String
-
-    private var imageNames: [String] {
-        fruits.compactMap { name in
-            Fruit.all.first { $0.name == name }?.imageName
-        }
-    }
 
     var body: some View {
         VStack(spacing: 14) {
@@ -23,16 +17,14 @@ struct BlendingLoadingView: View {
                 let t = context.date.timeIntervalSinceReferenceDate
 
                 HStack(spacing: 16) {
-                    if imageNames.isEmpty {
+                    if fruits.isEmpty {
                         bubble(index: 0, time: t) {
                             Text(fallbackEmoji).font(.system(size: 34))
                         }
                     } else {
-                        ForEach(Array(imageNames.enumerated()), id: \.offset) { index, imageName in
+                        ForEach(Array(fruits.enumerated()), id: \.offset) { index, name in
                             bubble(index: index, time: t) {
-                                Image(imageName)
-                                    .resizable()
-                                    .scaledToFill()
+                                fruitTile(name)
                                     .frame(width: 48, height: 48)
                                     .clipShape(RoundedRectangle(cornerRadius: 14))
                             }
@@ -57,6 +49,17 @@ struct BlendingLoadingView: View {
         .accessibilityLabel("Generating recipe")
     }
 
+    @ViewBuilder
+    private func fruitTile(_ name: String) -> some View {
+        if let imageName = Fruit.named(name)?.imageName {
+            Image(imageName)
+                .resizable()
+                .scaledToFill()
+        } else {
+            FruitInitialView(name: name)
+        }
+    }
+
     /// Each fruit hops in turn, slightly offset from the previous one.
     private func bubble<Content: View>(
         index: Int,
@@ -75,6 +78,6 @@ struct BlendingLoadingView: View {
 }
 
 #Preview {
-    BlendingLoadingView(fruits: ["Banana", "Mango", "Kiwi"], fallbackEmoji: "🥤")
+    BlendingLoadingView(fruits: ["Banana", "Lychee", "Kiwi"], fallbackEmoji: "🥤")
         .padding()
 }

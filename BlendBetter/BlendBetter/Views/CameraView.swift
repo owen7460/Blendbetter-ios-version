@@ -78,8 +78,10 @@ struct CameraView: View {
                             }
                         } else if appViewModel.isLoading {
                             detectedText = "Please wait for the current recipe"
+                        } else if appViewModel.isFinished {
+                            detectedText = "Tap \"Clear & Start Over\" to pick new fruits"
                         } else {
-                            detectedText = "Maximum 3 fruits allowed"
+                            detectedText = "Maximum \(AppViewModel.maxFruits) fruits allowed"
                         }
                     } else {
                         print("No fruit recognized")
