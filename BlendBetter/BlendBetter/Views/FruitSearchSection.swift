@@ -38,7 +38,7 @@ struct FruitSearchSection: View {
             // Hidden while typing so the results sit right under the field.
             if trimmedQuery.isEmpty {
                 // "Camera" is a tappable link that switches to the Camera tab.
-                Text("Or tap one of the \(Fruit.featured.count) common fruits below. You can also use the [Camera](blendbetter://camera) to recognize one.")
+                Text("Or pick from the common fruits below. You can also scan fruit with the [Camera](blendbetter://camera).")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .tint(Color.brandGreenDeep)
