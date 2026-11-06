@@ -12,6 +12,9 @@ struct SelectionTray: View {
     let onRemove: (String) -> Void
     let isGenerateDisabled: Bool
 
+    /// Must match the horizontal padding the Blend page puts around the tray.
+    static let edgeInset: CGFloat = 16
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
@@ -38,8 +41,24 @@ struct SelectionTray: View {
                     }
                 }
                 .padding(.vertical, 2)
+                // Inset the chips to line up with the rest of the tray...
+                .padding(.horizontal, Self.edgeInset)
             }
-            .scrollClipDisabled()
+            // ...but let the scroll area reach the card's edges, so chips are cut
+            // off at the edge of the card (with a soft fade) instead of mid-card.
+            .padding(.horizontal, -Self.edgeInset)
+            .mask(
+                LinearGradient(
+                    stops: [
+                        .init(color: .clear, location: 0),
+                        .init(color: .black, location: 0.04),
+                        .init(color: .black, location: 0.96),
+                        .init(color: .clear, location: 1),
+                    ],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
 
             if !appViewModel.conflictingFruits.isEmpty {
                 Label("Remove fruits on your allergy list to generate", systemImage: "exclamationmark.triangle.fill")

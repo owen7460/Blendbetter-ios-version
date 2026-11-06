@@ -7,12 +7,15 @@ import SwiftUI
 
 private let accentGreen = Color.brandGreen
 
-/// Search box for the fruits that aren't on the picture grid.
+/// Search box for all fruits, shown above the picture grid.
 /// Picked fruits show up in the selection tray at the bottom of the Blend page.
 struct FruitSearchSection: View {
     @EnvironmentObject var appViewModel: AppViewModel
     /// Same handler the grid uses, so the 3-fruit limit hint behaves identically.
     let onToggle: (String) -> Void
+    /// Tells the Blend page when the search field is being typed in,
+    /// so it can hide the bottom tray and scroll the field to the top.
+    @Binding var isSearching: Bool
 
     @State private var query = ""
     @FocusState private var isFocused: Bool
@@ -30,11 +33,22 @@ struct FruitSearchSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("More fruits")
-                .font(.headline)
-                .padding(.leading, 4)
-
             searchField
+
+            // Hidden while typing so the results sit right under the field.
+            if trimmedQuery.isEmpty {
+                // "Camera" is a tappable link that switches to the Camera tab.
+                Text("Or tap one of the \(Fruit.featured.count) common fruits below. You can also use the [Camera](blendbetter://camera) to recognize one.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .tint(Color.brandGreenDeep)
+                    .environment(\.openURL, OpenURLAction { _ in
+                        isFocused = false
+                        appViewModel.selectedTab = 3
+                        return .handled
+                    })
+                    .padding(.leading, 4)
+            }
 
             if !trimmedQuery.isEmpty {
                 let shown = results
@@ -63,6 +77,9 @@ struct FruitSearchSection: View {
                 isFocused = false
             }
         }
+        .onChange(of: isFocused) { _, focused in
+            isSearching = focused
+        }
     }
 
     private var searchField: some View {
@@ -70,7 +87,7 @@ struct FruitSearchSection: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(.secondary)
 
-            TextField("Search \(Fruit.all.count - Fruit.featured.count) more fruits, e.g. lychee", text: $query)
+            TextField("Search \(Fruit.all.count) fruits, e.g. lychee", text: $query)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .submitLabel(.done)
@@ -141,6 +158,6 @@ struct FruitThumbnail: View {
 }
 
 #Preview {
-    FruitSearchSection(onToggle: { _ in })
+    FruitSearchSection(onToggle: { _ in }, isSearching: .constant(false))
         .environmentObject(AppViewModel())
 }

@@ -18,8 +18,19 @@ struct HomeView: View {
 
     /// While generating or after a recipe is done, the page shows the result
     /// instead of the fruit picker.
+    /// True while the user is typing in the fruit search field.
+    @State private var isSearching = false
+
     private var isResultMode: Bool {
         appViewModel.isLoading || appViewModel.isFinished
+    }
+
+    /// The bottom bar (selection tray / Stop / Clear) is hidden:
+    /// - while typing in the search field, since it would sit on top of the keyboard;
+    /// - in picker mode with no fruits selected, since there's nothing to show or generate yet.
+    private var showsBottomBar: Bool {
+        if isResultMode { return true }
+        return !isSearching && !appViewModel.selectedFruits.isEmpty
     }
 
     private var isGenerateDisabled: Bool {
@@ -45,6 +56,13 @@ struct HomeView: View {
                         } else {
                             pickerContent
                                 .transition(.opacity)
+                        }
+
+                        // Extra room while searching, so the field can scroll to the top
+                        // even when there's little content below it.
+                        if isSearching && !isResultMode {
+                            Color.clear
+                                .frame(height: 360)
                         }
 
                         Color.clear
@@ -84,9 +102,21 @@ struct HomeView: View {
                     guard isFollowingStream, !appViewModel.generatedText.isEmpty else { return }
                     proxy.scrollTo("bottomAnchor", anchor: .bottom)
                 }
-                .safeAreaInset(edge: .bottom) {
-                    bottomBar
+                .onChange(of: isSearching) { _, searching in
+                    guard searching else { return }
+                    // Put the search field at the top so results have room above the keyboard.
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        proxy.scrollTo("search", anchor: .top)
+                    }
                 }
+                .safeAreaInset(edge: .bottom) {
+                    if showsBottomBar {
+                        bottomBar
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                }
+                .animation(.easeInOut(duration: 0.2), value: isSearching)
+                .animation(.spring(duration: 0.35), value: appViewModel.selectedFruits.isEmpty)
             }
             .background(Color.appBackground.ignoresSafeArea())
             .overlay(alignment: .top) {
@@ -117,6 +147,20 @@ struct HomeView: View {
                     }
                     .accessibilityLabel("History")
                 }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        handleSurpriseMe()
+                    } label: {
+                        Image(systemName: "dice")
+                            .font(.system(size: 17, weight: .semibold))
+                            .symbolEffect(.rotate, value: surpriseCount)
+                    }
+                    // Only useful while picking fruits.
+                    .disabled(appViewModel.isSelectionLocked)
+                    .accessibilityLabel("Surprise me")
+                    .accessibilityHint("Picks 2 to 3 random fruits for you.")
+                }
             }
             .sheet(isPresented: $showHistory) {
                 HistoryView()
@@ -143,21 +187,10 @@ struct HomeView: View {
 
             RecipeTypePicker()
 
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text("Fruits")
-                        .font(.headline)
-                    Spacer()
-                    Button {
-                        handleSurpriseMe()
-                    } label: {
-                        Label("Surprise me", systemImage: "dice")
-                            .symbolEffect(.rotate, value: surpriseCount)
-                    }
-                    .buttonStyle(PillButtonStyle())
-                }
-                .padding(.horizontal, 4)
+            FruitSearchSection(onToggle: { handleFruitTap($0) }, isSearching: $isSearching)
+                .id("search")
 
+            VStack(alignment: .leading, spacing: 12) {
                 LazyVGrid(columns: columns, spacing: 12) {
                     ForEach(Fruit.featured) { fruit in
                         let isSelected = appViewModel.selectedFruits.contains(fruit.name)
@@ -183,7 +216,6 @@ struct HomeView: View {
             }
             .padding(.horizontal)
 
-            FruitSearchSection(onToggle: { handleFruitTap($0) })
 
             if !appViewModel.conflictingFruits.isEmpty {
                 Label("\(appViewModel.conflictingFruits.joined(separator: ", ")) is on your allergy list. Remove it to generate.", systemImage: "exclamationmark.triangle.fill")
@@ -340,15 +372,13 @@ struct HomeView: View {
                 )
             }
         }
-        .padding(.horizontal)
-        .padding(.top, 14)
-        .padding(.bottom, 10)
-        .background(
-            Rectangle()
-                .fill(.regularMaterial)
-                .ignoresSafeArea(edges: .bottom)
-                .shadow(color: .black.opacity(0.06), radius: 10, y: -2)
-        )
+        .padding(SelectionTray.edgeInset)
+        // Keep everything (e.g. scrolling fruit chips) inside the rounded card.
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        // Floating Liquid Glass card, matching the iOS 26 tab bar below it.
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .padding(.horizontal, 12)
+        .padding(.bottom, 6)
         .animation(.easeInOut(duration: 0.25), value: appViewModel.isLoading)
         .animation(.easeInOut(duration: 0.25), value: appViewModel.isFinished)
         .animation(.spring(duration: 0.3), value: appViewModel.selectedFruits)

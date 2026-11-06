@@ -92,24 +92,6 @@ struct PrimaryButtonStyle: ButtonStyle {
     }
 }
 
-/// Small rounded "pill" button, e.g. "Surprise me".
-struct PillButtonStyle: ButtonStyle {
-    var color: Color = .brandGreen
-    @Environment(\.isEnabled) private var isEnabled
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Color.brandGreenDeep)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(color.opacity(0.18), in: Capsule())
-            .opacity(isEnabled ? 1 : 0.45)
-            .scaleEffect(configuration.isPressed ? 0.95 : 1)
-            .animation(.spring(duration: 0.2), value: configuration.isPressed)
-    }
-}
-
 // MARK: - Flow layout
 
 /// Lays children out left to right and wraps to new lines (for chips).
